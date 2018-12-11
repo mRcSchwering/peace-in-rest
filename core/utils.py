@@ -1,6 +1,7 @@
 # this python file uses the following encoding: utf-8
 from flask_httpauth import HTTPBasicAuth
 import json
+from data import conn as db
 
 
 class Utils(object):
@@ -19,10 +20,7 @@ class Utils(object):
 
         @auth.verify_password
         def verify_password(username, password):
-            for account in self.config['accounts']:
-                if account['user'] == username:
-                    if account['password'] == password:
-                        return True
-            return False
+            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+            return db.is_login_valid(username, password)
 
         self.auth = auth
