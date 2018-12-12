@@ -15,6 +15,8 @@ from data import conn as db
 
 # full example:
 # http://michal.karzynski.pl/blog/2016/06/19/building-beautiful-restful-apis-using-flask-swagger-ui-flask-restplus/
+# https://github.com/postrational/rest_api_demo/blob/master/rest_api_demo/api/blog/endpoints/categories.py
+# benutzt flask_sqlalchemy
 
 # TODO: ssl
 # https://blog.miguelgrinberg.com/post/running-your-flask-application-over-https
