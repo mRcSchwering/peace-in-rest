@@ -2,10 +2,15 @@
 
 
 class ValidationError(Exception):
-    """Use this for further validation errors. E.g. request validation, str should be in a specific format."""
+    """For custom validation errors"""
+    pass
+
+
+class AlreadyExists(Exception):
+    """For when something should be created but it already exists"""
     pass
 
 
 class NoResultFound(Exception):
-    """This is for when a database result is needed but there was none found"""
+    """For when a database result is needed but there was none found"""
     pass

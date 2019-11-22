@@ -6,7 +6,7 @@ import re
 
 
 # defaults
-SQLALCHEMY_DATABASE_URI = 'sqlite://'
+SQLALCHEMY_DATABASE_URI = 'sqlite:///./test.db'
 SQLALCHEMY_ECHO = False
 LOG_LEVEL = 'DEBUG'
 
