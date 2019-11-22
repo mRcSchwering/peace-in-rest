@@ -11,6 +11,8 @@ RUN pip3 install -r /requirements.txt
 COPY app/ /app_root/app/
 COPY test/ /app_root/test/
 WORKDIR /app_root
-RUN find -name "*.pyc" -delete
 
-CMD [ "sh", "-c", "sleep 5 && pytest test"  ]
+RUN find -name "*.pyc" -delete
+ENV PYTHONPATH /app_root/
+
+CMD [ "sh", "-c", "sleep 5 && python3 test/utils.py && pytest test"  ]

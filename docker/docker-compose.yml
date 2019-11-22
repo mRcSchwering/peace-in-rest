@@ -17,6 +17,7 @@ services:
       dockerfile: docker/Dockerfile_test
     environment:
       HOST: 'http://app:80'
+      SQLALCHEMY_DATABASE_URI: 'postgresql://postgres@postgres:5432/main'
     depends_on:
       - app
       - postgres

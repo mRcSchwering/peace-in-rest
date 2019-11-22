@@ -12,6 +12,7 @@ COPY app/ /app_root/app/
 WORKDIR /app_root
 RUN find -name "*.pyc" -delete
 
+ENV PYTHONPATH /app_root/
 EXPOSE 80
 
 CMD [ "sh", "-c", "uvicorn app.app:app --host 0.0.0.0 --port 80"  ]
