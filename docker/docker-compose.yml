@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+
+  app:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile_app
+    ports:
+      - "80:80"
+    environment:
+      SQLALCHEMY_DATABASE_URI: 'postgresql://postgres@postgres:5432/main'
+
+  test:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile_test
+    environment:
+      HOST: 'http://app:80'
+    depends_on:
+      - app
+      - postgres
+
+  postgres:
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_DB: main
+      POSTGRES_USER: postgres
+    ports:
+      - "5432:5432"

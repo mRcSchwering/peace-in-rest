@@ -1,0 +1,17 @@
+FROM alpine-python3:latest
+
+LABEL purpose="REST API for SQL Database"
+LABEL maintainer="schweringmarc01@gmail.com"
+
+# requirements layer
+COPY app/requirements.txt /requirements.txt
+RUN pip3 install -r /requirements.txt
+
+# flask app
+COPY app/ /app_root/app/
+WORKDIR /app_root
+RUN find -name "*.pyc" -delete
+
+EXPOSE 80
+
+CMD [ "sh", "-c", "uvicorn app.app:app --host 0.0.0.0 --port 80"  ]

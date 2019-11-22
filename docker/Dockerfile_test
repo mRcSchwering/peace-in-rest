@@ -1,0 +1,16 @@
+FROM alpine-python3:latest
+
+LABEL purpose="Tests for REST API"
+LABEL maintainer="schweringmarc01@gmail.com"
+
+# requirements layer
+COPY test/requirements.txt /requirements.txt
+RUN pip3 install -r /requirements.txt
+
+# add both (app for model definitions)
+COPY app/ /app_root/app/
+COPY test/ /app_root/test/
+WORKDIR /app_root
+RUN find -name "*.pyc" -delete
+
+CMD [ "sh", "-c", "sleep 5 && pytest test"  ]
