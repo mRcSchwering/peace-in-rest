@@ -6,13 +6,10 @@ from starlette.requests import Request
 from starlette.responses import Response, JSONResponse
 from sqlalchemy.exc import OperationalError, ProgrammingError, IntegrityError
 from pydantic.error_wrappers import ValidationError as SerializationError
-from app import exceptions, models
-from app.db import SessionLocal, engine
+from app import db, exceptions
 
 import app.api.namespace1 as namespace1
 
-
-models.Base.metadata.create_all(bind=engine)
 
 # app
 log = logging.getLogger(__name__)
@@ -29,7 +26,7 @@ app.include_router(namespace1.router)
 async def db_session_middleware(request: Request, call_next):
     response = Response('Internal server error', status_code=500)
     try:
-        request.state.db = SessionLocal()
+        request.state.db = db.SessionLocal()
         response = await call_next(request)
     finally:
         request.state.db.close()
