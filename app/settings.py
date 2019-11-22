@@ -15,12 +15,12 @@ LOG_LEVEL = 'DEBUG'
 if os.path.isfile('config.json'):
     with open('config.json') as inf:
         config = json.load(inf)
-    SQLALCHEMY_DATABASE_URI = config.get('POSTGRES_READ_USER_URI', SQLALCHEMY_DATABASE_URI)
+    SQLALCHEMY_DATABASE_URI = config.get('SQLALCHEMY_DATABASE_URI', SQLALCHEMY_DATABASE_URI)
     LOG_LEVEL = config.get('LOG_LEVEL', LOG_LEVEL)
 
 
 # check env
-SQLALCHEMY_DATABASE_URI = os.environ.get('POSTGRES_READ_USER_URI', SQLALCHEMY_DATABASE_URI)
+SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', SQLALCHEMY_DATABASE_URI)
 LOG_LEVEL = os.environ.get('LOG_LEVEL', LOG_LEVEL)
 
 
