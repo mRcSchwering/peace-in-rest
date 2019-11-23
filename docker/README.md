@@ -1,9 +1,13 @@
 # Docker
 
-Build alpine-python3 base image.
+Build alpine-python3 base image and push it to github registry.
 
 ```
 docker build -f docker/Dockerfile_base -t alpine-python3 docker/
+
+docker login docker.pkg.github.com --username mrcschwering
+docker tag alpine-python3 docker.pkg.github.com/mrcschwering/peace-in-rest/alpine-python3:latest
+docker push docker.pkg.github.com/mrcschwering/peace-in-rest/alpine-python3:latest
 ```
 
 Build app and test services with docker-compose.
