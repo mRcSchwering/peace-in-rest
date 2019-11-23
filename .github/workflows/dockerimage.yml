@@ -17,7 +17,9 @@ jobs:
       run: pwd && ls -la
     - name: What docker do I have here?
       run: docker --version && docker-compose --version
-    - name: pull base image from registry maybe Im already logged in
+    - name: github docker registry login
+      run: docker login docker.pkg.github.com --username mrcschwering --password $GITHUB_TOKEN
+    - name: pull base image from registry
       run: docker pull docker.pkg.github.com/mrcschwering/peace-in-rest/alpine-python3:latest
     - name: Trying to build the testing stack
       run: docker-compose -f docker/docker-compose-test.yml build
