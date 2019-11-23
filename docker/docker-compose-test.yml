@@ -6,6 +6,7 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile_app
+    image: app_testing
     ports:
       - "80:80"
     environment:

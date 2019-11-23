@@ -27,3 +27,7 @@ jobs:
       run: docker-compose -f docker/docker-compose-test.yml build
     - name: run tests
       run: docker-compose -f docker/docker-compose-test.yml up --exit-code-from test
+    - name: tag tested image
+      run: docker tag app_testing docker.pkg.github.com/mrcschwering/peace-in-rest/app:latest
+    - name: publish image
+      run: docker push docker.pkg.github.com/mrcschwering/peace-in-rest/app:latest
