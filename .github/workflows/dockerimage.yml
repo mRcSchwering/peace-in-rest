@@ -18,6 +18,8 @@ jobs:
     - name: What docker do I have here?
       run: docker --version && docker-compose --version
     - name: github docker registry login
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: docker login docker.pkg.github.com --username mrcschwering --password $GITHUB_TOKEN
     - name: pull base image from registry
       run: docker pull docker.pkg.github.com/mrcschwering/peace-in-rest/alpine-python3:latest
