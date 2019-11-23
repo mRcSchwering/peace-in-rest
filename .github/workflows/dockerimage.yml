@@ -16,7 +16,7 @@ jobs:
     - name: See environment
       run: pwd && ls -la
     - name: What docker do I have here?
-      run: docker--version && docker-compose --version
+      run: docker --version && docker-compose --version
     - name: Trying to build the testing stack
       run: docker-compose -f docker/docker-compose-test.yml build
     - name: Running the test
