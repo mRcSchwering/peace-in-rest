@@ -1,15 +1,16 @@
 # Docker
 
-Using docker images. Build base image
+Build alpine-python3 base image.
 
 ```
-docker build -f docker/ -t alpine-python3
+docker build -f docker/Dockerfile_base -t alpine-python3 docker/
 ```
 
-Build services with docker-compose and run them.
-Exits with exit code from testing service.
+Build app and test services with docker-compose.
+Start app with database server and run tests against app.
+Exits with exit code from tests.
 
 ```
-docker-compose -f docker/docker-compose.yml build
-docker-compose -f docker/docker-compose.yml up --exit-code-from test
+docker-compose -f docker/docker-compose-test.yml build
+docker-compose -f docker/docker-compose-test.yml up --exit-code-from test
 ```
