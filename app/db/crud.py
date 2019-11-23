@@ -1,7 +1,13 @@
 # this python file uses the following encoding: utf-8
+"""All CRUD Operations
+
+Nice trick: `models.Item(**item.dict(), owner_id=user_id)`
+            where item is a schema (pydantic model)
+"""
 from sqlalchemy.orm import Session
 from typing import List
-from app import models, schemas
+from app.db import models
+from app.api import schemas
 
 
 # User

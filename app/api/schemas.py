@@ -1,4 +1,13 @@
 # this python file uses the following encoding: utf-8
+"""API Models (here = schemas)
+
+API models are called schemas here to not confuse them with database models.
+Can be used for defining payloads and marshalling responses.
+Use `Query()` to add some description to a field.
+`Query(...)` for required value, `Query(None)` for not required (default=None).
+Define class Config with `orm_mode = True` to make schema understand
+SQLAlchemy model objects.
+"""
 from typing import List
 from pydantic import BaseModel
 from fastapi import Query

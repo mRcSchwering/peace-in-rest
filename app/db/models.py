@@ -1,4 +1,8 @@
 # this python file uses the following encoding: utf-8
+"""SQLAlchemy Database Models
+
+Will also be imported by test service to create testdata.
+"""
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from app.db import Base

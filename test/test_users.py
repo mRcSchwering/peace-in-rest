@@ -1,3 +1,8 @@
+# this python file uses the following encoding: utf-8
+"""Test /users/ resource endpoints
+
+Always use `test_*` naming scheme for test files and functions.
+"""
 import pytest
 from test.utils import get
 

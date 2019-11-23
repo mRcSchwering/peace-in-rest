@@ -1,7 +1,15 @@
+# this python file uses the following encoding: utf-8
+"""Testing Utils
+
+Imports models and session factory from app.db to initialize a database session
+and provide a `reset_testdata()` function.
+Also, testing helper function `get()`.
+Assumes that app is running on http://localhost:8000.
+Overwrite with ENV HOST. This is used in docker-compose testing workflow.
+"""
 import requests
 import os
-from app import models
-from app.db import SessionLocal, engine
+from app.db import models, SessionLocal, engine
 
 
 db = SessionLocal()

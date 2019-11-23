@@ -1,6 +1,8 @@
 # Docker
 
-Build alpine-python3 base image and push it to github registry.
+Build the base image for app and tests alpine-python3.
+For [github workflow](../.github/workflow/) it needs to be pushed to
+the github docker registry.
 
 ```
 docker build -f docker/Dockerfile_base -t alpine-python3 docker/

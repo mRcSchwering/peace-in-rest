@@ -1,10 +1,18 @@
 # this python file uses the following encoding: utf-8
+"""Endpoints for this namespace
+
+Has to be importet and included to the app object in app.py.
+Use schemas for payloads and response marshalling, crud for DB operations.
+A database session has to be added `Depends(get_db)`.
+In SwaggerUI function names = short descriptions, docstrings = long descriptions.
+"""
 import logging
 from typing import List
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from app import crud, schemas, exceptions
-from app.db import get_db
+from app import exceptions
+from app.db import get_db, crud
+from app.api import schemas
 
 router = APIRouter()
 log = logging.getLogger(__name__)

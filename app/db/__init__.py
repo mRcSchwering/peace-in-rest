@@ -1,4 +1,10 @@
 # this python file uses the following encoding: utf-8
+"""Sessions, Declarative Base
+
+Session pool is instantiated with `get_db` helper for getting a session.
+Include it as `Depends` in an endpoint definition to get a session object.
+SQLAlchemy declarative base is instantiated.
+"""
 import logging
 from typing import List
 from sqlalchemy import create_engine
@@ -20,15 +26,3 @@ Base = declarative_base()
 
 def get_db(request: Request) -> Session:
     return request.state.db
-
-
-def fetchall(query: ResultProxy) -> List[dict]:
-    rows = query.fetchall()
-    return [dict(d) for d in rows]
-
-
-def fetchone(query: ResultProxy) -> dict:
-    row = query.fetchone()
-    if row is None:
-        raise exceptions.NoResultFound('No results found')
-    return dict(row)

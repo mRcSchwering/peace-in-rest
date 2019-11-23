@@ -1,4 +1,5 @@
 # this python file uses the following encoding: utf-8
+"""Custom exceptions, error handlers are in app.py"""
 
 
 class ValidationError(Exception):

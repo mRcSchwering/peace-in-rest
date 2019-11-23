@@ -1,4 +1,10 @@
 # this python file uses the following encoding: utf-8
+"""App Settings
+
+Settings are first overwritten by a config.json if it exists,
+then by environment variables.
+The CICD workflow, docker-compose and the test service make use of this.
+"""
 import logging
 import os
 import json
@@ -7,7 +13,6 @@ import re
 
 # defaults
 SQLALCHEMY_DATABASE_URI = 'sqlite:///./test.db'
-SQLALCHEMY_ECHO = False
 LOG_LEVEL = 'DEBUG'
 
 

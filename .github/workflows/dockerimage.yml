@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: App Docker Image
 
 on:
   push:
@@ -7,27 +7,35 @@ on:
 
 jobs:
 
-  build:
+  build-test-release:
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v1
+
     - name: environment
       run: pwd && ls -la && docker --version && docker-compose --version
+
     - name: docker login
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: docker login docker.pkg.github.com --username mrcschwering --password $GITHUB_TOKEN
+
     - name: pull base image
       run: docker pull docker.pkg.github.com/mrcschwering/peace-in-rest/alpine-python3:latest
+
     - name: tag base image
       run: docker tag docker.pkg.github.com/mrcschwering/peace-in-rest/alpine-python3:latest alpine-python3
+
     - name: build test stack
       run: docker-compose -f docker/docker-compose-test.yml build
+
     - name: run tests
       run: docker-compose -f docker/docker-compose-test.yml up --exit-code-from test
+
     - name: tag tested image
       run: docker tag app_testing docker.pkg.github.com/mrcschwering/peace-in-rest/app:latest
+
     - name: publish image
       run: docker push docker.pkg.github.com/mrcschwering/peace-in-rest/app:latest
