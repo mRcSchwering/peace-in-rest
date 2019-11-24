@@ -1,6 +1,6 @@
 fastapi==0.38.1
 pydantic==0.32.2
-SQLAlchemy==1.2.14
+SQLAlchemy==1.3.0
 starlette==0.12.8
 uvicorn==0.9.0
 psycopg2-binary
