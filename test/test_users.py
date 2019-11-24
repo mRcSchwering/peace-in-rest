@@ -22,3 +22,4 @@ def test_get_all_users():
     users = resp.json()
     assert isinstance(users, list)
     assert len(users) == 3
+    assert 1 == 0
