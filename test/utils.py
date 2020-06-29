@@ -13,7 +13,7 @@ from app.db import models, SessionLocal, engine
 
 
 db = SessionLocal()
-host = os.environ.get('HOST', 'http://localhost:8000')
+host = os.environ.get('HOST', 'http://localhost:8000/v0')
 
 
 def get(uri, timeout=1):
