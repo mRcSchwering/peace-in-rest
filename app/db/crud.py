@@ -9,8 +9,9 @@ from typing import List
 from app.db import models
 from app.api import schemas
 
-
 # User
+
+
 def get_user(db: Session, user_id: int) -> models.User:
     return db.query(models.User).filter(models.User.id == user_id).first()
 

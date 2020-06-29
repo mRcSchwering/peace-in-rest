@@ -8,17 +8,18 @@ from sqlalchemy.exc import OperationalError, ProgrammingError, IntegrityError
 from pydantic.error_wrappers import ValidationError as SerializationError
 from app import db, exceptions
 
-import app.api.namespace1 as namespace1
+import app.api.version0 as version0
 
 
 # app
 log = logging.getLogger(__name__)
-app = FastAPI(
-    title='The API Title',
-    version='0.0.1',
-    description='some description')
+app = FastAPI()
 
-app.include_router(namespace1.router)
+subapi = FastAPI(title='The API Title',
+                 version='0.0.1',
+                 description='some description')
+subapi.include_router(version0.router)
+app.mount("/v0", subapi)
 
 
 # db session middleware
@@ -51,7 +52,8 @@ def input_validation_error_handler(request, exc):
 
 @app.exception_handler(exceptions.NoResultFound)
 def no_results_found_error_handler(request, exc):
-    msg = 'A database result was required but none was found' if str(exc) == '' else str(exc)
+    msg = 'A database result was required but none was found' if str(
+        exc) == '' else str(exc)
     log.warning(msg)
     return JSONResponse(content={'message': msg}, status_code=404)
 

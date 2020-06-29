@@ -20,7 +20,10 @@ class ItemBase(BaseModel):
 
 
 class ItemCreate(ItemBase):
-    pass
+    # works same with GET query params
+    asd1: str = Query(..., description='This is not optional')
+    asd2: str = Query(None, description='This is optional')
+    asd3: str = Query("a", enum=["a", "b"], description='Selection')
 
 
 class Item(ItemBase):

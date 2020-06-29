@@ -5,7 +5,6 @@ Session pool is instantiated with `get_db` helper for getting a session.
 Include it as `Depends` in an endpoint definition to get a session object.
 SQLAlchemy declarative base is instantiated.
 """
-import logging
 from typing import List
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -14,12 +13,11 @@ from sqlalchemy.engine import ResultProxy
 from starlette.requests import Request
 from app import settings, exceptions
 
-log = logging.getLogger(__name__)
-
 connect_args = {}
 if settings.SQLALCHEMY_DATABASE_URI.split(':')[0] == 'sqlite':
     connect_args['check_same_thread'] = False
-engine = create_engine(settings.SQLALCHEMY_DATABASE_URI, connect_args=connect_args)
+engine = create_engine(settings.SQLALCHEMY_DATABASE_URI,
+                       connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
