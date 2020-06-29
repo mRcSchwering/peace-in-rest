@@ -13,11 +13,12 @@ from app.db import models, SessionLocal, engine
 
 
 db = SessionLocal()
-host = os.environ.get('HOST', 'http://localhost:8000/v0')
+host = os.environ.get('HOST', 'http://localhost:8000')
+version = '/v0'
 
 
 def get(uri, timeout=1):
-    return requests.get(host + uri, timeout=timeout)
+    return requests.get(host + version + uri, timeout=timeout)
 
 
 def reset_testdata():
