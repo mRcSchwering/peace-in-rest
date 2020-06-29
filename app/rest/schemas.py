@@ -13,8 +13,14 @@ from pydantic import BaseModel
 from fastapi import Query
 
 
+class OrmBase(BaseModel):
+
+    class Config:
+        orm_mode = True
+
+
 # Items
-class ItemBase(BaseModel):
+class ItemBase(OrmBase):
     title: str = Query(..., description='The Item title')
     description: str = None
 
@@ -35,7 +41,7 @@ class Item(ItemBase):
 
 
 # Users
-class UserBase(BaseModel):
+class UserBase(OrmBase):
     email: str
 
 
@@ -47,6 +53,3 @@ class User(UserBase):
     id: int
     is_active: bool
     items: List[Item] = []
-
-    class Config:
-        orm_mode = True

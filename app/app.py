@@ -8,12 +8,14 @@ from sqlalchemy.exc import OperationalError, ProgrammingError, IntegrityError
 from pydantic.error_wrappers import ValidationError as SerializationError
 from app import db, exceptions
 
-import app.api.version0 as version0
+import app.rest.version0 as version0
+import app.graphql.schema as graphql
 
 
 # app
 log = logging.getLogger(__name__)
 app = FastAPI()
+app.include_router(graphql.router)
 
 subapi = FastAPI(title='The API Title',
                  version='0.0.1',
