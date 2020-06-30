@@ -7,7 +7,7 @@ SQLAlchemy declarative base is instantiated.
 """
 from typing import List
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.engine import ResultProxy
 from starlette.requests import Request
@@ -20,6 +20,7 @@ engine = create_engine(settings.SQLALCHEMY_DATABASE_URI,
                        connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+Base.query = scoped_session(SessionLocal).query_property()
 
 
 def get_db(request: Request) -> Session:

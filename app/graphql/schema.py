@@ -1,36 +1,54 @@
-from graphene import String, Field, Schema, ObjectType
+from graphene import ObjectType, Schema, List, Field
 from fastapi import APIRouter
 from starlette.graphql import GraphQLApp
+
+from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
+import app.db.models as models
+from graphene import relay
 
 router = APIRouter()
 
 
-class Person(ObjectType):
+class User(SQLAlchemyObjectType):
     """
-    Person can be greeted
+    A User type will be constructed with different pagination and sorting
+    options, and with all fields automatically mapped.
+    I have to add the field for the relationship `items` explicitely but
+    the mapping gets resolved correctly.
     """
-    first_name = String(description="a first name")
-    last_name = String(default_value="Griffin")
-    full_name = String()
-    greet = String(say=String(default_value="hi"),
-                   description="greet a person")
+    class Meta:
+        model = models.User
+        interfaces = (relay.Node,)
 
-    @staticmethod
-    def resolve_full_name(parent, info):
-        return f"{parent.first_name} {parent.last_name}"
+    items = List(lambda: Item)
 
-    @staticmethod
-    def resolve_greet(parent, info, say):
-        return f"{say} {parent.first_name} {parent.last_name}"
+
+class Item(SQLAlchemyObjectType):
+    """
+    I am using lambda function to define the `Field` types because normally
+    python wouldnt let me define a cricular dependency. And also I use
+    `Item` before I define it.
+    """
+    class Meta:
+        model = models.Item
+        interfaces = (relay.Node,)
+
+    owner = Field(lambda: User)
 
 
 class Query(ObjectType):
-    """Root Query"""
-    me = Field(Person, description="Who am I")
+    """
+    In the root Query object I "mount" those special SQLAlchemy object types
+    like below. This kind of generates all the resolvers automatically.
+    I basically don't need `db.crud.py`!
 
-    @staticmethod
-    def resolve_me(parent, info):
-        return Person(first_name="Peter")
+    Note: Don't forget to add the session in the initialization. In my case
+    it's in `db.__init__.py` together with the session objects.
+
+        Base.query = scoped_session(SessionLocal).query_property()
+    """
+    all_users = SQLAlchemyConnectionField(User.connection)
+    all_items = SQLAlchemyConnectionField(Item.connection)
 
 
 router.add_route(
