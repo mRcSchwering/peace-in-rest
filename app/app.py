@@ -8,6 +8,7 @@ from sqlalchemy.exc import OperationalError, ProgrammingError, IntegrityError
 from pydantic.error_wrappers import ValidationError as SerializationError
 from app import db, exceptions
 
+import app.rest.auth as auth
 import app.rest.version0 as version0
 import app.graphql.schema as graphql
 
@@ -15,12 +16,13 @@ import app.graphql.schema as graphql
 # app
 log = logging.getLogger(__name__)
 app = FastAPI()
-app.include_router(graphql.router)
+# app.include_router(graphql.router)
 
 subapi = FastAPI(title='The API Title',
                  version='0.0.1',
                  description='some description')
 subapi.include_router(version0.router)
+subapi.include_router(auth.router)
 app.mount("/v0", subapi)
 
 
