@@ -1,0 +1,21 @@
+name: myservice
+
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    image: myapp
+    ports:
+      - "80:80"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://admin:admin@postgres:5432/main}
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-main}
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+    ports:
+      - "5432:5432"

@@ -1,6 +1,0 @@
-fastapi==0.58.1
-SQLAlchemy==1.3.18
-uvicorn==0.11.5
-graphene==2.1.8
-graphene-sqlalchemy==2.3.0
-psycopg2-binary
