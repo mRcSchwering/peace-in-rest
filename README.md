@@ -8,8 +8,6 @@ fastapi dev app/main.py
 docker build -f docker/Dockerfile -t app . 
 
 docker run -d --rm -p 80:80 app
-
-pytest test
 ```
 
 - [app/](./app/) actual app
