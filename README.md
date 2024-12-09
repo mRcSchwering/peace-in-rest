@@ -1,10 +1,14 @@
 # Peace-in-REST
 
-REST API app template using fastAPI and SQLAlchemy.
+REST API app template using FastAPI and SQLAlchemy.
 
 ```
-uvicorn app.app:app --reload
-...
+fastapi dev app/main.py
+
+docker build -f docker/Dockerfile -t app . 
+
+docker run -d --rm -p 80:80 app
+
 pytest test
 ```
 

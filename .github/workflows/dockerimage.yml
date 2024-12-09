@@ -3,7 +3,7 @@ name: App Docker Image
 on:
   push:
     branches:
-    - master
+    - masterasd
 
 jobs:
 
