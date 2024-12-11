@@ -7,22 +7,22 @@ from .common import Base
 
 
 class User(Base):
-    __tablename__ = "user_account"
+    __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(30))
     fullname: Mapped[str | None]
 
-    addresses: Mapped[list["Address"]] = relationship(
+    items: Mapped[list["Item"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 
 
-class Address(Base):
-    __tablename__ = "address"
+class Item(Base):
+    __tablename__ = "item"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    email_address: Mapped[str]
-    user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id"))
+    email: Mapped[str]
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
 
-    user: Mapped["User"] = relationship(back_populates="addresses")
+    user: Mapped["User"] = relationship(back_populates="items")
