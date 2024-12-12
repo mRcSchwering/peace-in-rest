@@ -7,6 +7,10 @@ class UserResponse(BaseModel):
     fullname: str | None
 
 
+class UsersResponse(BaseModel):
+    users: list[UserResponse]
+
+
 class CreateUserPayload(BaseModel):
     name: str
     fullname: str | None = None

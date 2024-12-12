@@ -1,8 +1,8 @@
 name: pir
 dependencies:
   - python=3.11
-  - pytest  # testing
   - pylint  # linting
   - mypy  # linting
   - pip:
       - -r app/requirements.txt
+      - -r tests/functional/requirements.txt

@@ -13,7 +13,15 @@ def get_all_users(sess: Session) -> Sequence[user_models.User]:
     return users
 
 
-def create_user(sess: Session, name: str, fullname: str | None) -> user_models.User:
+def get_user_by_id(sess: Session, id: int) -> user_models.User:
+    stmt = select(user_models.User).where(user_models.User.id == id)
+    user = sess.scalars(stmt).one()
+    return user
+
+
+def create_user(
+    sess: Session, name: str, fullname: str | None = None
+) -> user_models.User:
     params = {"name": name, "fullname": fullname}
     with sess.begin():
         stmt = insert(user_models.User).returning(user_models.User)
@@ -21,7 +29,9 @@ def create_user(sess: Session, name: str, fullname: str | None) -> user_models.U
     return user
 
 
-def update_user(sess: Session, id: int, fullname: str | None) -> user_models.User:
+def update_user(
+    sess: Session, id: int, fullname: str | None = None
+) -> user_models.User:
     params = {"fullname": fullname}
     with sess.begin():
         stmt = (

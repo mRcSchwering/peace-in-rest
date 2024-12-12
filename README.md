@@ -23,3 +23,4 @@ alembic current
 
 - use config from app for DB_URL
 - import models and declarative base
+- timestamp on version tags
