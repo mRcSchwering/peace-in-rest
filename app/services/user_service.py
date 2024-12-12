@@ -13,8 +13,8 @@ def get_all_users(sess: Session) -> Sequence[user_models.User]:
     return users
 
 
-def get_user_by_id(sess: Session, id: int) -> user_models.User:
-    stmt = select(user_models.User).where(user_models.User.id == id)
+def get_user(sess: Session, pubid: str) -> user_models.User:
+    stmt = select(user_models.User).where(user_models.User.pubid == pubid)
     user = sess.scalars(stmt).one()
     return user
 
@@ -30,20 +30,20 @@ def create_user(
 
 
 def update_user(
-    sess: Session, id: int, fullname: str | None = None
+    sess: Session, pubid: str, fullname: str | None = None
 ) -> user_models.User:
     params = {"fullname": fullname}
     with sess.begin():
         stmt = (
             update(user_models.User)
-            .where(user_models.User.id == id)
+            .where(user_models.User.pubid == pubid)
             .returning(user_models.User)
         )
         user = sess.scalars(stmt, params).one()
     return user
 
 
-def delete_user(sess: Session, id: int):
+def delete_user(sess: Session, pubid: str):
     with sess.begin():
-        stmt = delete(user_models.User).where(user_models.User.id == id)
+        stmt = delete(user_models.User).where(user_models.User.pubid == pubid)
         sess.execute(stmt)

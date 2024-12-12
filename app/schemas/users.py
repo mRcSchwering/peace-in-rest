@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UserResponse(BaseModel):
-    id: int
+    pubid: str
     name: str
     fullname: str | None
 
@@ -12,7 +12,7 @@ class UsersResponse(BaseModel):
 
 
 class CreateUserPayload(BaseModel):
-    name: str
+    name: str = Field(..., max_length=10)
     fullname: str | None = None
 
 

@@ -21,10 +21,10 @@ def get_users(session: SessionDep):
     return {"users": users}
 
 
-@router.get("/{id}", response_model=UserResponse, response_model_exclude_none=True)
-def get_user_by_id(session: SessionDep, id: int):
-    log.info("Getting user %s", id)
-    return user_service.get_user_by_id(sess=session, id=id)
+@router.get("/{pubid}", response_model=UserResponse, response_model_exclude_none=True)
+def get_user_by_id(session: SessionDep, pubid: str):
+    log.info("Getting user %s", pubid)
+    return user_service.get_user(sess=session, pubid=pubid)
 
 
 @router.post(
@@ -37,13 +37,15 @@ def create_user(session: SessionDep, payload: CreateUserPayload):
     )
 
 
-@router.put("/{id}", response_model=UserResponse, response_model_exclude_none=True)
-def update_user(session: SessionDep, id: int, payload: UpdateUserPayload):
-    log.info("Updating user %s", id)
-    return user_service.update_user(sess=session, id=id, fullname=payload.fullname)
+@router.put("/{pubid}", response_model=UserResponse, response_model_exclude_none=True)
+def update_user(session: SessionDep, pubid: str, payload: UpdateUserPayload):
+    log.info("Updating user %s", pubid)
+    return user_service.update_user(
+        sess=session, pubid=pubid, fullname=payload.fullname
+    )
 
 
-@router.delete("/{id}", response_model_exclude_none=True)
-def delete_user(session: SessionDep, id: int):
-    log.info("Deleting user %s", id)
-    user_service.delete_user(sess=session, id=id)
+@router.delete("/{pubid}", response_model_exclude_none=True)
+def delete_user(session: SessionDep, pubid: str):
+    log.info("Deleting user %s", pubid)
+    user_service.delete_user(sess=session, pubid=pubid)
