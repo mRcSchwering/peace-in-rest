@@ -17,7 +17,7 @@ class TestUsers:
         teardown_db()
 
     def test_get_users(self, api_client: TestClient):
-        resp = api_client.get("/v1/users")
+        resp = api_client.get("/users")
         assert resp.status_code == 200
         data = resp.json()
 
@@ -33,7 +33,7 @@ class TestUsers:
 
     def test_create_update_delete_user(self, api_client: TestClient):
         payload: dict = {"name": "u3", "fullname": "user 3"}
-        resp = api_client.post("/v1/users", json=payload)
+        resp = api_client.post("/users", json=payload)
         assert resp.status_code == 201
         user = resp.json()
 
@@ -41,7 +41,7 @@ class TestUsers:
         assert user["fullname"] == "user 3"
         pubid = user["pubid"]
 
-        resp = api_client.get(f"/v1/users/{pubid}")
+        resp = api_client.get(f"/users/{pubid}")
         assert resp.status_code == 200
         user = resp.json()
 
@@ -49,22 +49,22 @@ class TestUsers:
         assert user["fullname"] == "user 3"
 
         payload = {"fullname": None}
-        resp = api_client.put(f"/v1/users/{pubid}", json=payload)
+        resp = api_client.put(f"/users/{pubid}", json=payload)
         assert resp.status_code == 200
         user = resp.json()
 
         assert user["name"] == "u3"
         assert "fullname" not in user
 
-        resp = api_client.get(f"/v1/users/{pubid}")
+        resp = api_client.get(f"/users/{pubid}")
         assert resp.status_code == 200
         user = resp.json()
 
         assert user["name"] == "u3"
         assert "fullname" not in user
 
-        resp = api_client.delete(f"/v1/users/{pubid}")
+        resp = api_client.delete(f"/users/{pubid}")
         assert resp.status_code == 200
 
-        resp = api_client.get(f"/v1/users/{pubid}")
+        resp = api_client.get(f"/users/{pubid}")
         assert resp.status_code == 404
