@@ -1,36 +1,46 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.database import SessionFact
-from app.services import user_service
+from app.services import user_service, item_service
 from tests.functional.util import setup_db, teardown_db
 
 
-class TestUsers:
+@pytest.fixture(scope="module", autouse=True)
+def setup():
+    setup_db()
+    with SessionFact() as sess:
+        user1 = user_service.create_user(sess=sess, name="u1")
+        item_service.create_item(sess=sess, user_pubid=user1.id, name="i1")
+        item_service.create_item(sess=sess, user_pubid=user1.id, name="i2")
+        user_service.create_user(sess=sess, name="u2")
+        sess.commit()
+    yield {"u1_id": user1.id}
+    teardown_db()
 
-    @pytest.fixture(scope="class", autouse=True)
-    def setup(self):
-        setup_db()
-        with SessionFact() as sess:
-            user_service.create_user(sess=sess, name="u1", fullname="user 1")
-            user_service.create_user(sess=sess, name="u2")
-            sess.commit()
-        yield
-        teardown_db()
 
-    def test_get_users(self, api_client: TestClient):
-        resp = api_client.get("/users")
+class TestItems:
+    u1_id: str
+
+    @pytest.fixture(autouse=True)
+    def setup(self, setup: dict):
+        self.u1_id = setup["u1_id"]
+
+    def test_get_items(self, api_client: TestClient):
+        params = {"user_pubid": self.u1_id}
+        resp = api_client.get("/items", params=params)
         assert resp.status_code == 200
         data = resp.json()
 
-        users: list[dict] = data["users"]
-        assert len(users) == 2
-        user_names = [d["name"] for d in users]
+        items: list[dict] = data["items"]
+        assert len(items) == 2
+        item_names = [d["name"] for d in items]
 
-        user = users[user_names.index("u1")]
-        assert user["fullname"] == "user 1"
+        item = items[item_names.index("i1")]
+        print(item)
+        assert item["fullname"] == "user 1"
 
-        user = users[user_names.index("u2")]
-        assert "fullname" not in user
+        item = items[item_names.index("i2")]
+        assert "fullname" not in item
 
     def test_create_update_delete_user(self, api_client: TestClient):
         payload: dict = {"name": "u3", "fullname": "user 3"}

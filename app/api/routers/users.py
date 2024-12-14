@@ -18,13 +18,14 @@ router = APIRouter(prefix="/users")
 def get_users(session: SessionDep):
     log.info("Getting all users")
     users = user_service.get_all_users(sess=session)
-    return {"users": users}
+    return UsersResponse.from_users(users=users)
 
 
 @router.get("/{pubid}", response_model=UserResponse, response_model_exclude_none=True)
 def get_user_by_id(session: SessionDep, pubid: str):
     log.info("Getting user %s", pubid)
-    return user_service.get_user(sess=session, pubid=pubid)
+    user = user_service.get_user(sess=session, pubid=pubid)
+    return UserResponse.from_orm(user)
 
 
 @router.post(
@@ -32,17 +33,19 @@ def get_user_by_id(session: SessionDep, pubid: str):
 )
 def create_user(session: SessionDep, payload: CreateUserPayload):
     log.info("Creating new user")
-    return user_service.create_user(
+    user = user_service.create_user(
         sess=session, name=payload.name, fullname=payload.fullname
     )
+    return UserResponse.from_orm(user)
 
 
 @router.put("/{pubid}", response_model=UserResponse, response_model_exclude_none=True)
 def update_user(session: SessionDep, pubid: str, payload: UpdateUserPayload):
     log.info("Updating user %s", pubid)
-    return user_service.update_user(
+    user = user_service.update_user(
         sess=session, pubid=pubid, fullname=payload.fullname
     )
+    return UserResponse.from_orm(user)
 
 
 @router.delete("/{pubid}", response_model_exclude_none=True)
