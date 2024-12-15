@@ -5,17 +5,19 @@ from app.services import user_service
 from tests.functional.util import setup_db, teardown_db
 
 
-class TestUsers:
-
-    @pytest.fixture(scope="class", autouse=True)
-    def setup(self):
-        setup_db()
-        with SessionFact() as sess:
-            user_service.create_user(sess=sess, name="u1", fullname="user 1")
-            user_service.create_user(sess=sess, name="u2")
-            sess.commit()
+@pytest.fixture(scope="module", autouse=True)
+def setup():
+    with SessionFact() as sess:
+        setup_db(sess=sess)
+        user_service.create_user(sess=sess, name="u1", fullname="user 1")
+        user_service.create_user(sess=sess, name="u2")
+        sess.commit()
         yield
-        teardown_db()
+        teardown_db(sess=sess)
+        sess.commit()
+
+
+class TestUsers:
 
     def test_get_users(self, api_client: TestClient):
         resp = api_client.get("/users")

@@ -8,10 +8,11 @@ class ItemResponse(BaseModel):
     pubid: str
     name: str
     added: dt.datetime
+    user_pubid: str
 
     @classmethod
     def from_orm(cls, obj: item_models.Item):
-        return cls(pubid=obj.id, name=obj.name, added=obj.added)
+        return cls(pubid=obj.id, name=obj.name, added=obj.added, user_pubid=obj.user_id)
 
 
 class ItemsResponse(BaseModel):

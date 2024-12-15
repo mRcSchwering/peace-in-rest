@@ -16,7 +16,7 @@ class Item(Base):
     id: Mapped[str] = mapped_column(
         UUID(as_uuid=False), primary_key=True, default=uuid.uuid4
     )
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("user.id"))
     name: Mapped[str] = mapped_column(String(30))
     added: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
 
