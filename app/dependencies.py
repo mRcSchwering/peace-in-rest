@@ -1,13 +1,13 @@
 from typing import Annotated
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
 from app.database import SessionFact
 
 
-def _get_db_session():
-    with SessionFact() as session:
+async def _get_db_session():
+    async with SessionFact() as session:
         yield session
-        session.commit()  # automatically commit in request context
+        await session.commit()  # automatically commit in request context
 
 
-SessionDep = Annotated[Session, Depends(_get_db_session)]
+SessionDep = Annotated[AsyncSession, Depends(_get_db_session)]

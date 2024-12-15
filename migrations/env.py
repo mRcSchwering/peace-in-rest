@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 # NOTE: not using sqlalchemy.url from alembic.ini
-from app.config import DATABASE_URL
+from app.config import SYNC_DATABASE_URL
 
 # NOTE: import Base for metadata, this also imports models
 from app.database import Base
@@ -45,7 +45,7 @@ def run_migrations_offline() -> None:
 
     """
     context.configure(
-        url=DATABASE_URL,
+        url=SYNC_DATABASE_URL,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -62,7 +62,7 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = create_engine(DATABASE_URL, poolclass=pool.NullPool)
+    connectable = create_engine(SYNC_DATABASE_URL, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

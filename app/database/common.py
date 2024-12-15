@@ -1,8 +1,7 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from app.config import DATABASE_URL, DEBUG
 
-engine = create_engine(
+engine = create_async_engine(
     DATABASE_URL,
     isolation_level="READ COMMITTED",
     pool_pre_ping=False,  # True for pessimistic pre-ping before each checkout
@@ -13,7 +12,7 @@ engine = create_engine(
     echo=DEBUG,
 )
 
-SessionFact = sessionmaker(
+SessionFact = async_sessionmaker(
     bind=engine,
     autobegin=True,  # session implicitly BEGINs a transation
     autoflush=True,  # all queries flush (database updates are sent to database)

@@ -1,26 +1,25 @@
 import pytest
-from fastapi.testclient import TestClient
 from app.database import SessionFact
-from app.services import user_service
-from tests.functional.util import setup_db, teardown_db
+from httpx import AsyncClient
+from tests.functional import util
 
 
 @pytest.fixture(scope="module", autouse=True)
-def setup():
-    with SessionFact() as sess:
-        setup_db(sess=sess)
-        user_service.create_user(sess=sess, name="u1", fullname="user 1")
-        user_service.create_user(sess=sess, name="u2")
-        sess.commit()
+async def setup():
+    async with SessionFact() as sess:
+        await util.setup_db(sess=sess)
+        await util.create_user(sess=sess, name="u1", fullname="user 1")
+        await util.create_user(sess=sess, name="u2")
+        await sess.commit()
         yield
-        teardown_db(sess=sess)
-        sess.commit()
+        await util.teardown_db(sess=sess)
+        await sess.commit()
 
 
 class TestUsers:
 
-    def test_get_users(self, api_client: TestClient):
-        resp = api_client.get("/users")
+    async def test_get_users(self, api_client: AsyncClient):
+        resp = await api_client.get("/users")
         assert resp.status_code == 200
         data = resp.json()
 
@@ -34,9 +33,9 @@ class TestUsers:
         user = users[user_names.index("u2")]
         assert "fullname" not in user
 
-    def test_create_update_delete_user(self, api_client: TestClient):
+    async def test_create_update_delete_user(self, api_client: AsyncClient):
         payload: dict = {"name": "u3", "fullname": "user 3"}
-        resp = api_client.post("/users", json=payload)
+        resp = await api_client.post("/users", json=payload)
         assert resp.status_code == 201
         user = resp.json()
 
@@ -44,7 +43,7 @@ class TestUsers:
         assert user["fullname"] == "user 3"
         pubid = user["pubid"]
 
-        resp = api_client.get(f"/users/{pubid}")
+        resp = await api_client.get(f"/users/{pubid}")
         assert resp.status_code == 200
         user = resp.json()
 
@@ -52,22 +51,22 @@ class TestUsers:
         assert user["fullname"] == "user 3"
 
         payload = {"fullname": None}
-        resp = api_client.put(f"/users/{pubid}", json=payload)
+        resp = await api_client.put(f"/users/{pubid}", json=payload)
         assert resp.status_code == 200
         user = resp.json()
 
         assert user["name"] == "u3"
         assert "fullname" not in user
 
-        resp = api_client.get(f"/users/{pubid}")
+        resp = await api_client.get(f"/users/{pubid}")
         assert resp.status_code == 200
         user = resp.json()
 
         assert user["name"] == "u3"
         assert "fullname" not in user
 
-        resp = api_client.delete(f"/users/{pubid}")
+        resp = await api_client.delete(f"/users/{pubid}")
         assert resp.status_code == 200
 
-        resp = api_client.get(f"/users/{pubid}")
+        resp = await api_client.get(f"/users/{pubid}")
         assert resp.status_code == 404

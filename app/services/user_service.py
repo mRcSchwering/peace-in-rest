@@ -1,32 +1,35 @@
 from typing import Sequence
 import logging
 from sqlalchemy import select, insert, update, delete
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.models import user_models
 
 log = logging.getLogger(__name__)
 
 
-def get_all_users(sess: Session) -> Sequence[user_models.User]:
+async def get_all_users(sess: AsyncSession) -> Sequence[user_models.User]:
     stmt = select(user_models.User)
-    return sess.scalars(stmt).all()
+    res = await sess.scalars(stmt)
+    return res.all()
 
 
-def get_user(sess: Session, pubid: str) -> user_models.User:
+async def get_user(sess: AsyncSession, pubid: str) -> user_models.User:
     stmt = select(user_models.User).where(user_models.User.id == pubid)
-    return sess.scalars(stmt).one()
+    res = await sess.scalars(stmt)
+    return res.one()
 
 
-def create_user(
-    sess: Session, name: str, fullname: str | None = None
+async def create_user(
+    sess: AsyncSession, name: str, fullname: str | None = None
 ) -> user_models.User:
     params = {"name": name, "fullname": fullname}
     stmt = insert(user_models.User).returning(user_models.User)
-    return sess.scalars(stmt, params).one()
+    res = await sess.scalars(stmt, params)
+    return res.one()
 
 
-def update_user(
-    sess: Session, pubid: str, fullname: str | None = None
+async def update_user(
+    sess: AsyncSession, pubid: str, fullname: str | None = None
 ) -> user_models.User:
     params = {"fullname": fullname}
     stmt = (
@@ -34,9 +37,10 @@ def update_user(
         .where(user_models.User.id == pubid)
         .returning(user_models.User)
     )
-    return sess.scalars(stmt, params).one()
+    res = await sess.scalars(stmt, params)
+    return res.one()
 
 
-def delete_user(sess: Session, pubid: str):
+async def delete_user(sess: AsyncSession, pubid: str):
     stmt = delete(user_models.User).where(user_models.User.id == pubid)
-    sess.execute(stmt)
+    await sess.execute(stmt)

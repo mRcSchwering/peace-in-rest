@@ -1,20 +1,21 @@
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient, ASGITransport
+from pytest_asyncio import is_async_test
 from app.main import app
-from app.database import SessionFact
-from tests.functional.util import setup_db, teardown_db
 
 
-@pytest.fixture(scope="session")
-def api_client():
-    return TestClient(app)
+def pytest_collection_modifyitems(items):
+    # NOTE: makes sure that all async tests run in the same event loop
+    #       it is recommended to do it like this (see pytest-asyncio howto guides)
+    #       not doing this leads to "RunTimeError: Task got Future attached to different loop"
+    pytest_asyncio_tests = (item for item in items if is_async_test(item))
+    session_scope_marker = pytest.mark.asyncio(loop_scope="session")
+    for async_test in pytest_asyncio_tests:
+        async_test.add_marker(session_scope_marker, append=False)
 
 
 @pytest.fixture(scope="function")
-def reset_db():
-    with SessionFact() as sess:
-        setup_db(sess=sess)
-        sess.commit(sess=sess)
-        yield
-        teardown_db(sess=sess)
-        sess.commit()
+async def api_client():
+    asgi_transport = ASGITransport(app=app)
+    async with AsyncClient(transport=asgi_transport, base_url="http://test") as client:
+        yield client
