@@ -19,6 +19,10 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(30))
     fullname: Mapped[str | None]
 
+    # prevent accidentally lazy loading relationships (lazy="raise")
     items: Mapped[list["Item"]] = relationship(
-        back_populates="user", cascade="all, delete-orphan"
+        back_populates="user", cascade="all,delete-orphan", lazy="raise"
     )
+
+    def __str__(self):
+        return f"User(name={self.name})"

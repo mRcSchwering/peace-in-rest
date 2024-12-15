@@ -1,6 +1,7 @@
 from typing import Sequence
 import logging
 from sqlalchemy import select, insert, update, delete
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.models import user_models
 
@@ -17,6 +18,16 @@ async def get_user(sess: AsyncSession, pubid: str) -> user_models.User:
     stmt = select(user_models.User).where(user_models.User.id == pubid)
     res = await sess.scalars(stmt)
     return res.one()
+
+
+async def get_user_with_items(sess: AsyncSession, pubid: str) -> user_models.User:
+    stmt = (
+        select(user_models.User)
+        .options(joinedload(user_models.User.items))
+        .where(user_models.User.id == pubid)
+    )
+    res = await sess.execute(stmt)
+    return res.unique().scalars().one()
 
 
 async def create_user(

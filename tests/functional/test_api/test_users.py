@@ -8,15 +8,22 @@ from tests.functional import util
 async def setup():
     async with AsyncSessionMaker() as sess:
         await util.setup_db(sess=sess)
-        await util.create_user(sess=sess, name="u1", fullname="user 1")
+        user = await util.create_user(sess=sess, name="u1", fullname="user 1")
+        await util.create_item(sess=sess, user_pubid=user.id, name="u1i1")
+        await util.create_item(sess=sess, user_pubid=user.id, name="u1i2")
         await util.create_user(sess=sess, name="u2")
         await sess.commit()
-        yield
+        yield {"u1_id": user.id}
         await util.teardown_db(sess=sess)
         await sess.commit()
 
 
 class TestUsers:
+    u1_id: str
+
+    @pytest.fixture(scope="function", autouse=True)
+    async def setup(self, setup: dict):
+        self.u1_id = setup["u1_id"]
 
     async def test_get_users(self, api_client: AsyncClient):
         resp = await api_client.get("/users")
@@ -32,6 +39,29 @@ class TestUsers:
 
         user = users[user_names.index("u2")]
         assert "fullname" not in user
+
+        params = {"incl_items": True}
+        resp = await api_client.get(f"/users/{self.u1_id}", params=params)
+        assert resp.status_code == 200
+        user = resp.json()
+
+        assert user["name"] == "u1"
+        items = user["items"]
+        assert items[0]["name"] == "u1i1"
+        assert items[1]["name"] == "u1i2"
+
+    async def test_delete_user_with_items(self, api_client: AsyncClient):
+        resp = await api_client.delete(f"/users/{self.u1_id}")
+        assert resp.status_code == 200
+
+        resp = await api_client.get(f"/users/{self.u1_id}")
+        assert resp.status_code == 404
+
+        params = {"user_pubid": self.u1_id}
+        resp = await api_client.get("/items", params=params)
+        assert resp.status_code == 200
+        data = resp.json()
+        assert len(data["items"]) == 0
 
     async def test_create_update_delete_user(self, api_client: AsyncClient):
         payload: dict = {"name": "u3", "fullname": "user 3"}

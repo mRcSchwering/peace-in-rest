@@ -16,8 +16,12 @@ class Item(Base):
     id: Mapped[str] = mapped_column(
         UUID(as_uuid=False), primary_key=True, default=uuid.uuid4
     )
-    user_id: Mapped[str] = mapped_column(ForeignKey("user.id"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("user.id", ondelete="CASCADE"))
     name: Mapped[str] = mapped_column(String(30))
     added: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
 
-    user: Mapped["User"] = relationship(back_populates="items")
+    # prevent accidentally lazy loading relationships (lazy="raise")
+    user: Mapped["User"] = relationship(back_populates="items", lazy="raise")
+
+    def __str__(self):
+        return f"Item(name={self.name},user_id={self.user_id})"

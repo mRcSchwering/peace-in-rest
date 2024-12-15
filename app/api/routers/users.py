@@ -6,6 +6,7 @@ from app.schemas.users import (
     CreateUserPayload,
     UpdateUserPayload,
     UsersResponse,
+    UserWithItemsResponse,
 )
 from app.services import user_service
 
@@ -21,9 +22,18 @@ async def get_users(session: AsyncSessionDep):
     return UsersResponse.from_users(users=users)
 
 
-@router.get("/{pubid}", response_model=UserResponse, response_model_exclude_none=True)
-async def get_user_by_id(session: AsyncSessionDep, pubid: str):
+@router.get(
+    "/{pubid}",
+    response_model=UserResponse | UserWithItemsResponse,
+    response_model_exclude_none=True,
+)
+async def get_user_by_id(
+    session: AsyncSessionDep, pubid: str, incl_items: bool = False
+):
     log.info("Getting user %s", pubid)
+    if incl_items:
+        user = await user_service.get_user_with_items(sess=session, pubid=pubid)
+        return UserWithItemsResponse.from_orm(user)
     user = await user_service.get_user(sess=session, pubid=pubid)
     return UserResponse.from_orm(user)
 

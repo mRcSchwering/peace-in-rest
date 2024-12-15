@@ -1,16 +1,29 @@
 from typing import Sequence
 from pydantic import BaseModel, Field
 from app.database.models import user_models
+from .items import ItemResponse
 
 
 class UserResponse(BaseModel):
     pubid: str
     name: str
-    fullname: str | None
+    fullname: str | None = None
 
     @classmethod
     def from_orm(cls, obj: user_models.User):
         return cls(pubid=obj.id, name=obj.name, fullname=obj.fullname)
+
+
+class UserWithItemsResponse(BaseModel):
+    pubid: str
+    name: str
+    fullname: str | None = None
+    items: list[ItemResponse] | None = None
+
+    @classmethod
+    def from_orm(cls, obj: user_models.User):
+        items = [ItemResponse.from_orm(d) for d in obj.items]
+        return cls(pubid=obj.id, name=obj.name, fullname=obj.fullname, items=items)
 
 
 class UsersResponse(BaseModel):
