@@ -1,12 +1,12 @@
 import pytest
-from app.database import SessionFact
+from app.database import AsyncSessionMaker
 from httpx import AsyncClient
 from tests.functional import util
 
 
 @pytest.fixture(scope="module", autouse=True)
 async def setup():
-    async with SessionFact() as sess:
+    async with AsyncSessionMaker() as sess:
         await util.setup_db(sess=sess)
         await util.create_user(sess=sess, name="u1", fullname="user 1")
         await util.create_user(sess=sess, name="u2")

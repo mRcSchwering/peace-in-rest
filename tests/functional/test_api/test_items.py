@@ -1,13 +1,13 @@
 import pytest
 import datetime as dt
 from httpx import AsyncClient
-from app.database import SessionFact
+from app.database import AsyncSessionMaker
 from tests.functional import util
 
 
 @pytest.fixture(scope="module", autouse=True)
 async def setup():
-    async with SessionFact() as sess:
+    async with AsyncSessionMaker() as sess:
         await util.setup_db(sess=sess)
         user1 = await util.create_user(sess=sess, name="u1")
         await util.create_item(sess=sess, user_pubid=user1.id, name="u1i1")

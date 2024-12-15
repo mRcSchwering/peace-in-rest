@@ -1,12 +1,14 @@
+import asyncio
 from logging.config import fileConfig
 
-from sqlalchemy import create_engine
 from sqlalchemy import pool
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from alembic import context
 
-# NOTE: not using sqlalchemy.url from alembic.ini
-from app.config import SYNC_DATABASE_URL
+# NOTE: not using url from alembic.init
+from app.config import DATABASE_URL
 
 # NOTE: import Base for metadata, this also imports models
 from app.database import Base
@@ -45,7 +47,7 @@ def run_migrations_offline() -> None:
 
     """
     context.configure(
-        url=SYNC_DATABASE_URL,
+        url=DATABASE_URL,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -55,20 +57,31 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+def do_run_migrations(connection: Connection) -> None:
+    context.configure(connection=connection, target_metadata=target_metadata)
 
-    In this scenario we need to create an Engine
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+async def run_async_migrations() -> None:
+    """In this scenario we need to create an Engine
     and associate a connection with the context.
 
     """
-    connectable = create_engine(SYNC_DATABASE_URL, poolclass=pool.NullPool)
 
-    with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+    connectable = create_async_engine(DATABASE_URL, poolclass=pool.NullPool)
 
-        with context.begin_transaction():
-            context.run_migrations()
+    async with connectable.connect() as connection:
+        await connection.run_sync(do_run_migrations)
+
+    await connectable.dispose()
+
+
+def run_migrations_online() -> None:
+    """Run migrations in 'online' mode."""
+
+    asyncio.run(run_async_migrations())
 
 
 if context.is_offline_mode():
