@@ -3,19 +3,29 @@
 REST API app template using FastAPI and SQLAlchemy.
 
 ```
+# start app locally
 fastapi dev app/main.py
 
+# build docker image for app
 docker build -f docker/Dockerfile -t myapp . 
 
+# run app alone in docker container
 docker run -d --rm -p 80:80 myapp
 
-docker compose -f docker/docker-compose.yaml up
+# only start postgres
+docker compose -f docker/docker-compose.yaml up -d postgres
 
+# generate migration from code
 alembic revision --autogenerate -m "init"
 
+# upgrade to most recent migration
 alembic upgrade head
 
+# show current migration
 alembic current
+
+# fails if code has changed that is not reflected in migration
+alembic check
 ```
 
 
@@ -26,6 +36,11 @@ alembic current
 - change engine, session, session maker to async versions
 - functions and context manager become async
 - await methods like execute, commit
+- should use `expire_on_commit=False` and eagerly load everything needed
+- set `relationship(lazy="raise")` to avoid lazy loading
+- within one session everything must be concurrent (session is uses 1 event loop)
+- ORM-sided feature dont always work (e.g. `relationship(.."delete")` doesn't work)
+- should make use of database features instead (e.g. `ForeignKey("user.id", ondelete="CASCADE")`)
 
 #### Pytest
 
