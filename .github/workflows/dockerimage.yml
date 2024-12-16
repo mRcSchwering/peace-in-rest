@@ -7,12 +7,12 @@ on:
 
 jobs:
 
-  build-test-release:
+  main:
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
 
     - name: environment
       run: pwd && ls -la && docker --version && docker-compose --version

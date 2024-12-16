@@ -1,16 +1,6 @@
 name: myservice
 
 services:
-  app:
-    build:
-      context: ../
-      dockerfile: docker/Dockerfile
-    image: myapp
-    ports:
-      - "80:80"
-    environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql://admin:admin@postgres:5432/main}
-
   postgres:
     image: postgres:17-alpine
     environment:
@@ -19,3 +9,24 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
     ports:
       - "5432:5432"
+
+  app:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.app
+    image: myapp
+    depends_on: [postgres]
+    ports:
+      - "80:80"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://admin:admin@postgres:5432/main}
+
+  test:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.test
+    depends_on: [app]
+    volumes:
+      - ../app:/app
+      - ../tests:/tests
+    command: ["pytest", "tests/"]

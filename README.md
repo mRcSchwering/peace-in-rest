@@ -7,7 +7,7 @@ REST API app template using FastAPI and SQLAlchemy.
 fastapi dev app/main.py
 
 # build docker image for app
-docker build -f docker/Dockerfile -t myapp . 
+docker build -f docker/Dockerfile.app -t myapp . 
 
 # run app alone in docker container
 docker run -d --rm -p 80:80 myapp

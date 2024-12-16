@@ -1,0 +1,11 @@
+FROM python:3.11
+
+LABEL purpose="REST API app"
+LABEL maintainer="schweringmarc01@gmail.com"
+
+# requirements layer
+COPY app/requirements.txt /requirements.txt
+COPY tests/functional/requirements.txt /requirements-tests.txt
+RUN pip install --no-cache-dir --upgrade -r /requirements.txt -r /requirements-tests.txt
+
+CMD ["pytest", "tests/"]
