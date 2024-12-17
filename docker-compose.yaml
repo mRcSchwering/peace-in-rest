@@ -1,0 +1,43 @@
+name: myservice
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-main}
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+    ports:
+      - "5432:5432"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    image: app
+    depends_on: [postgres]
+    ports:
+      - "80:80"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://admin:admin@postgres:5432/main}
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: tests
+    image: tests
+    depends_on: [postgres]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://admin:admin@postgres:5432/main}
+
+  migrations:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrations
+    image: migrations
+    depends_on: [postgres]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://admin:admin@postgres:5432/main}

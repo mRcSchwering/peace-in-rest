@@ -5,4 +5,5 @@ dependencies:
   - mypy  # linting
   - pip:
       - -r app/requirements.txt
-      - -r tests/functional/requirements.txt
+      - -r migrations/requirements.txt
+      - -r tests/requirements.txt
