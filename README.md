@@ -12,15 +12,6 @@ docker build -f docker/Dockerfile --target app -t myapp .
 # run app alone in docker container
 docker run -d --rm -p 80:80 myapp
 
-# docker compose services
-docker compose build
-docker compose up -d postgres
-sleep 5
-docker compose run --rm migrations  # run migrations
-docker compose run --rm migrations alembic check  # check migrations and code
-docker compose run --rm tests pytest tests/functional  # run functional tests
-...  # run e2e tests
-
 # generate migration from code
 alembic revision --autogenerate -m "init"
 

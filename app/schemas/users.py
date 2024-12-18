@@ -3,6 +3,8 @@ from pydantic import BaseModel, Field
 from app.database.models import user_models
 from .items import ItemResponse
 
+# TODO: check UUIDs in pydantic (have fixed character length)
+
 
 class UserResponse(BaseModel):
     pubid: str

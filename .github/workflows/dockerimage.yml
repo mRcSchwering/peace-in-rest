@@ -23,13 +23,25 @@ jobs:
       run: docker compose build
     
     - name: start postgres
-      run: docker compose up -d postgres && sleep 5
+      run: docker compose up -d postgres
 
     - name: run migrations
-      run: docker compose run --rm migrations alembic upgrade head
+      run: |
+        sleep 5 && \
+        docker compose run --rm migrations alembic upgrade head
 
     - name: check migrations
       run: docker compose run --rm migrations alembic check
 
     - name: run functional tests
       run: docker compose run --rm tests pytest tests/functional
+
+    - name: reset database and app
+      run: |
+        docker compose down && \
+        docker compose up -d postgres app && \
+        sleep 5 && \
+        docker compose run --rm migrations alembic upgrade head
+
+    - name: run concurrency test
+      run: docker compose run --rm tests python tests/e2e/concurrency.py
