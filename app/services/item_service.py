@@ -4,6 +4,7 @@ import datetime as dt
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.models import item_models
+from app.database import retry_on_deadlock
 
 log = logging.getLogger(__name__)
 
