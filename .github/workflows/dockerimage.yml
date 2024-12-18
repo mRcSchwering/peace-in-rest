@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  main:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -44,4 +44,7 @@ jobs:
         docker compose run --rm migrations alembic upgrade head
 
     - name: run concurrency test
-      run: docker compose run --rm tests python tests/e2e/concurrency.py
+      run: docker compose run --rm tests python -m tests.e2e test concurrency
+
+    - name: run deadlocks test
+      run: docker compose run --rm tests python -m tests.e2e test deadlocks

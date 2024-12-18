@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import random
 import httpx
 
 
@@ -19,35 +20,30 @@ def _create(url: str, payload: dict) -> str:
     return data["pubid"]
 
 
-def _get(url: str):
-    print("Checking", url)
-    resp = httpx.get(url=url, timeout=1)
+def _update(url: str):
+    print("Updating", url)
+    payload = {"fullname": f"lutz-{random.randint(1, 9999)}"}
+    resp = httpx.put(url=url, json=payload, timeout=1)
     assert resp.status_code == 200, resp.content
     data = resp.json()
-    assert len(data) > 0, data
+    assert len(data) > 0, resp.content
 
 
-def _create_user_and_items(user_name: str, app_url: str, n_items=10):
-    payload = {"name": user_name}
+def run_deadlocks_test(app_url: str, n_clients: int = 10, **_):
+    payload = {"name": "lutz"}
     user_pubid = _create(url=f"{app_url}/users", payload=payload)
-    for item_i in range(n_items):
-        payload = {"name": f"{user_name}_item-{item_i}", "user_pubid": user_pubid}
-        item_pubid = _create(url=f"{app_url}/items", payload=payload)
-        _get(url=f"{app_url}/items/{item_pubid}")
 
-
-def run_concurrency_test(app_url: str, n_users: int = 10, **_):
     print("Start polling")
-    poll_users_kwargs = {"url": f"{app_url}/users"}
+    poll_users_kwargs = {"url": f"{app_url}/users/{user_pubid}"}
     poll_users = mp.Process(target=_poll, kwargs=poll_users_kwargs)
     poll_users.start()
 
     try:
-        print("Start creating resources")
-        args = [(f"user-{d}", app_url) for d in range(n_users)]
+        print("Start updating resources")
+        args = [f"{app_url}/users/{user_pubid}" for _ in range(n_clients)]
         with mp.Pool(4) as pool:
-            pool.starmap(_create_user_and_items, args)
-        print("Stop creating resources")
+            pool.map(_update, args)
+        print("Stop updating resources")
     finally:
         print("Stop polling")
         poll_users.kill()

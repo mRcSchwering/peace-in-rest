@@ -58,3 +58,11 @@ alembic check
 - adapt env.py to use DB URL from config and engine from DB URL
 - in env.py import models and declarative base
 - timestamp on version tags configuration in alembic.ini
+
+
+### Workers geht nicht
+
+- tldr: `fastapi run` with multiple `workers` doesnt work (at least not with this async setup)
+- at least together with async and using the normal `fastapi` cli it doesnt work
+- during concurrency test, it raises `connection refused`
+- I guess the web server used by `fastapi` doesn't serve to the multiple processes correctly
