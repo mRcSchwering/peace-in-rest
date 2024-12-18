@@ -35,7 +35,7 @@ docker compose run --rm tests python -m tests.e2e test concurrency
 
 ### Async
 
-#### SQLAlchemy
+### SQLAlchemy
 
 The DBAPI for postgres has to be `asyncpg`.
 SQLAlchemy are async variants of `Session`, `sessionmaker`, `engine`, and their context managers.
@@ -53,7 +53,7 @@ When using the SQLAlchemy Core API ORM-sided features don't always work.
 E.g. `relationship(..., cascade="delete")` doesn't actually trigger on delete.
 Instead I have to use the database features, i.e. `ForeignKey(..., ondelete="CASCADE")`.
 
-#### Pytest
+### Pytest
 
 Pytests need `pytest-asyncio` to execute async tests and fixtures.
 Async tests can automatically be marked for asyncio by having `asyncio_mode=auto` in _pytest.ini_.
