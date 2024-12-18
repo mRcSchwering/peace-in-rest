@@ -23,46 +23,67 @@ alembic current
 
 # fails if code has changed that is not reflected in migration
 alembic check
+
+# e2e tests (in 2 terminals to see logs)
+docker compose build
+docker compose up postgres app
+...
+docker compose run --rm migrations alembic upgrade head
+docker compose run --rm tests python -m tests.e2e test concurrency
 ```
 
 
-### Async Setup
+### Async
 
 #### SQLAlchemy
 
-- change engine, session, session maker to async versions
-- functions and context manager become async
-- await methods like execute, commit
-- should use `expire_on_commit=False` and eagerly load everything needed
-- set `relationship(lazy="raise")` to avoid lazy loading
-- within one session everything must be concurrent (session is uses 1 event loop)
-- ORM-sided feature dont always work (e.g. `relationship(.."delete")` doesn't work)
-- should make use of database features instead (e.g. `ForeignKey("user.id", ondelete="CASCADE")`)
+The DBAPI for postgres has to be `asyncpg`.
+SQLAlchemy are async variants of `Session`, `sessionmaker`, `engine`, and their context managers.
+Practically, this means `execute()` and `commit()` have to be awaited.
+This also means lazy loading attributes doesn't work as before.
+I set `relationship(lazy="raise")` so that one has to fetch all attributes explicitly (better anyway).
+The session maker has `expire_on_commit=False`, so that ORM objects can be used after committing a session.
+
+A session uses one event loop and is not threadsafe.
+So within a session everything should run in sequence.
+Which means the asynchronous execution comes to play on the request level only
+(e.g. one request can be handled while another is waiting for the database to respond).
+
+When using the SQLAlchemy Core API ORM-sided features don't always work.
+E.g. `relationship(..., cascade="delete")` doesn't actually trigger on delete.
+Instead I have to use the database features, i.e. `ForeignKey(..., ondelete="CASCADE")`.
 
 #### Pytest
 
-- needs pytest-asyncio
-- tests must be marked or in pytest.ini asyncio_mode=auto
-- this marks every async test as async
-- pytest-asyncio doesnt work well with sqlalchemy
-- common error: "RunTimeError: Task got Future attached to different loop"
-- to avoid that, run everything in same event loop
-- therefore, use same session maker from app (to have same pool)
-- set asyncio_default_fixture_loop_scope=session in pytest.ini so fixtures use same loop
-- use pytest_collection_modifyitems hook in conftest.py to use same event loop for all tests
+Pytests need `pytest-asyncio` to execute async tests and fixtures.
+Async tests can automatically be marked for asyncio by having `asyncio_mode=auto` in _pytest.ini_.
+
+`pytest-asyncio` doesn't seem to work well by async SQLAlchemy.
+Running tests naively leads to `"RunTimeError: Task got Future attached to different loop"`.
+To avoid that, the test setup has to make sure everything runs in the same event loop.
+So, I am using the _app_'s session maker and set all fixtures to the session loop by
+having `asyncio_default_fixture_loop_scope=session` in _pytest.ini_.
+But there is no such setting for the async tests themselves.
+This has to be done manually with a hook `pytest_collection_modifyitems` in _conftest.py_ (according to the docs).
 
 
 ### Alembic setup
 
-- using `alembic init -t async <script_directory_here>` (asyncio template)
-- adapt env.py to use DB URL from config and engine from DB URL
-- in env.py import models and declarative base
-- timestamp on version tags configuration in alembic.ini
+Alembic has a async setup command `alembic init -t async ...`.
+_env.py_ has to be edited to load ORM mappings and the database URL from _app_.
+The `connectable` can be created with `create_async_engine` with a `NullPool`.
+I also edited _alembic.ini_ to include a timestamp in the migration file, so that they are easier to find.
 
 
-### Workers geht nicht
+### FastAPI
 
-- tldr: `fastapi run` with multiple `workers` doesnt work (at least not with this async setup)
-- at least together with async and using the normal `fastapi` cli it doesnt work
-- during concurrency test, it raises `connection refused`
-- I guess the web server used by `fastapi` doesn't serve to the multiple processes correctly
+FastAPI offers a CLI that starts uvicorn to serve the app.
+This CLI has a `--workers` argument to start multiple processes at once.
+Setting this argument (more than 1 process) breaks the app.
+There will be `connection refused` errors if many requests are comming in.
+I added concurrency tests to [tests/e2e/](./tests/e2e/).
+Probably the web server doesn't serve multiple processes correctly.
+
+I assume serving the app with gunicorn would work fine.
+But this means, one has to make the decision of whether to use asyncio or multiple processes.
+Both wouldn't work.
