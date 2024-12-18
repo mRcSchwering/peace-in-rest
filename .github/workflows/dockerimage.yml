@@ -3,39 +3,33 @@ name: App Docker Image
 on:
   push:
     branches:
-    - masterasd
+    - master
 
 jobs:
 
   main:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
 
+    - name: Set up Docker
+      uses: docker/setup-docker-action@v4
+
     - name: environment
-      run: pwd && ls -la && docker --version && docker-compose --version
+      run: pwd && ls -la && docker version && docker compose version
 
-    - name: docker login
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: docker login docker.pkg.github.com --username mrcschwering --password $GITHUB_TOKEN
+    - name: build docker images
+      run: docker compose build
+    
+    - name: start postgres
+      run: docker compose up -d postgres && sleep 5
 
-    - name: pull base image
-      run: docker pull docker.pkg.github.com/mrcschwering/peace-in-rest/alpine-python3:latest
+    - name: run migrations
+      run: docker compose run --rm migrations alembic upgrade head
 
-    - name: tag base image
-      run: docker tag docker.pkg.github.com/mrcschwering/peace-in-rest/alpine-python3:latest alpine-python3
+    - name: check migrations
+      run: docker compose run --rm migrations alembic check
 
-    - name: build test stack
-      run: docker-compose -f docker/docker-compose-test.yml build
-
-    - name: run tests
-      run: docker-compose -f docker/docker-compose-test.yml up --exit-code-from test
-
-    - name: tag tested image
-      run: docker tag app_testing docker.pkg.github.com/mrcschwering/peace-in-rest/app:latest
-
-    - name: publish image
-      run: docker push docker.pkg.github.com/mrcschwering/peace-in-rest/app:latest
+    - name: run functional tests
+      run: docker compose run --rm tests pytest tests/functional
