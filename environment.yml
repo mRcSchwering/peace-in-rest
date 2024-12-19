@@ -3,6 +3,7 @@ dependencies:
   - python=3.11
   - pylint  # linting
   - mypy  # linting
+  - types-passlib  # TODO: where to put lib stubs
   - pip:
       - -r app/requirements.txt
       - -r migrations/requirements.txt

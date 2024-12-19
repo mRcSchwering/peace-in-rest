@@ -16,8 +16,9 @@ class User(Base):
     id: Mapped[str] = mapped_column(
         UUID(as_uuid=False), primary_key=True, default=uuid.uuid4
     )
-    name: Mapped[str] = mapped_column(String(30))
+    name: Mapped[str] = mapped_column(String(30), unique=True)
     fullname: Mapped[str | None]
+    password_hash: Mapped[str | None]
 
     # prevent accidentally lazy loading relationships (lazy="raise")
     items: Mapped[list["Item"]] = relationship(back_populates="user", lazy="raise")

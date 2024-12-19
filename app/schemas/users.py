@@ -38,6 +38,7 @@ class UsersResponse(BaseModel):
 
 class CreateUserPayload(BaseModel):
     name: str = Field(..., max_length=30)
+    password: str
     fullname: str | None = None
 
 

@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter
-from app.dependencies import AsyncSessionDep
+from app.dependencies import AsyncSessionDep, AccessTokenClaimsDep
 from app.schemas.users import (
     UserResponse,
     CreateUserPayload,
@@ -8,6 +8,7 @@ from app.schemas.users import (
     UsersResponse,
     UserWithItemsResponse,
 )
+from app.modules.auth import get_password_hash
 from app.services import user_service
 
 log = logging.getLogger(__name__)
@@ -16,8 +17,9 @@ router = APIRouter(prefix="/users")
 
 
 @router.get("", response_model=UsersResponse, response_model_exclude_none=True)
-async def get_users(session: AsyncSessionDep):
+async def get_users(session: AsyncSessionDep, claims: AccessTokenClaimsDep):
     log.info("Getting all users")
+    print(claims)
     users = await user_service.get_all_users(sess=session)
     return UsersResponse.from_users(users=users)
 
@@ -27,14 +29,14 @@ async def get_users(session: AsyncSessionDep):
     response_model=UserResponse | UserWithItemsResponse,
     response_model_exclude_none=True,
 )
-async def get_user_by_id(
+async def get_user_by_pubid(
     session: AsyncSessionDep, pubid: str, incl_items: bool = False
 ):
     log.info("Getting user %s", pubid)
     if incl_items:
         user = await user_service.get_user_with_items(sess=session, pubid=pubid)
         return UserWithItemsResponse.from_orm(user)
-    user = await user_service.get_user(sess=session, pubid=pubid)
+    user = await user_service.get_user_by_pubid(sess=session, pubid=pubid)
     return UserResponse.from_orm(user)
 
 
@@ -43,8 +45,14 @@ async def get_user_by_id(
 )
 async def create_user(session: AsyncSessionDep, payload: CreateUserPayload):
     log.info("Creating new user")
+    # TODO: check password strength (in Pydantic?)
+    hashed_password = get_password_hash(pw=payload.password)
+
     user = await user_service.create_user(
-        sess=session, name=payload.name, fullname=payload.fullname
+        sess=session,
+        name=payload.name,
+        password_hash=hashed_password,
+        fullname=payload.fullname,
     )
     return UserResponse.from_orm(user)
 

@@ -14,8 +14,14 @@ async def get_all_users(sess: AsyncSession) -> Sequence[user_models.User]:
     return res.all()
 
 
-async def get_user(sess: AsyncSession, pubid: str) -> user_models.User:
+async def get_user_by_pubid(sess: AsyncSession, pubid: str) -> user_models.User:
     stmt = select(user_models.User).where(user_models.User.id == pubid)
+    res = await sess.scalars(stmt)
+    return res.one()
+
+
+async def get_user_by_name(sess: AsyncSession, name: str) -> user_models.User:
+    stmt = select(user_models.User).where(user_models.User.name == name)
     res = await sess.scalars(stmt)
     return res.one()
 
@@ -31,9 +37,12 @@ async def get_user_with_items(sess: AsyncSession, pubid: str) -> user_models.Use
 
 
 async def create_user(
-    sess: AsyncSession, name: str, fullname: str | None = None
+    sess: AsyncSession,
+    name: str,
+    password_hash: str | None = None,
+    fullname: str | None = None,
 ) -> user_models.User:
-    params = {"name": name, "fullname": fullname}
+    params = {"name": name, "fullname": fullname, "password_hash": password_hash}
     stmt = insert(user_models.User).returning(user_models.User)
     res = await sess.scalars(stmt, params)
     return res.one()
