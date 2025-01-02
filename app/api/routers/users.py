@@ -8,7 +8,7 @@ from app.schemas.users import (
     UsersResponse,
     UserWithItemsResponse,
 )
-from app.modules.auth import get_password_hash
+from app.modules.auth import hash_password
 from app.services import user_service
 
 log = logging.getLogger(__name__)
@@ -45,8 +45,8 @@ async def get_user_by_pubid(
 )
 async def create_user(session: AsyncSessionDep, payload: CreateUserPayload):
     log.info("Creating new user")
-    # TODO: check password strength (in Pydantic?)
-    hashed_password = get_password_hash(pw=payload.password)
+    # TODO: check password strength (in Pydantic?), but not too long (bcrypt)
+    hashed_password = hash_password(pw=payload.password)
 
     user = await user_service.create_user(
         sess=session,

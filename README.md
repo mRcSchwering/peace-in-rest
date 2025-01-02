@@ -3,7 +3,9 @@
 REST API app template using FastAPI and SQLAlchemy.
 
 ```
-# start app locally
+# local
+docker compose up -d postgres
+alembic upgrade head
 fastapi dev app/main.py
 
 # build docker image for app

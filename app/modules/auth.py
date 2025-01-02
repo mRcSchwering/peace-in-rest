@@ -1,14 +1,11 @@
 import datetime as dt
 import jwt
 from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
+import bcrypt
 from app.config import SECRET_KEY
 from app.modules.utils import utcnow
 
-ALGORITHM = "HS256"
 
-
-# TODO: doublecheck libraries, algorithms used
 # TODO: how to add refresh?
 
 # TODO: already warnings in passlib...
@@ -22,15 +19,13 @@ ALGORITHM = "HS256"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
-pwd_context = CryptContext(schemes=["bcrypt"])
+
+def verify_password(pw: str, pwhash: str) -> bool:
+    return bcrypt.checkpw(pw.encode("utf-8"), pwhash.encode("utf-8"))
 
 
-def verify_password(pw: str | bytes, pwhash: str | bytes) -> bool:
-    return pwd_context.verify(pw, pwhash)
-
-
-def get_password_hash(pw: bytes | str) -> str:
-    return pwd_context.hash(pw)
+def hash_password(pw: str) -> str:
+    return bcrypt.hashpw(pw.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def create_access_token(
@@ -41,8 +36,8 @@ def create_access_token(
 
     exp = utcnow() + dt.timedelta(minutes=exp_minutes)
     claims = {"sub": sub, "aud": aud, "exp": exp}
-    return jwt.encode({**add_claims, **claims}, key=SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode({**add_claims, **claims}, key=SECRET_KEY, algorithm="HS256")
 
 
 def decode_access_token(token: str | bytes, aud: str = "app") -> dict:
-    return jwt.decode(token, audience=aud, key=SECRET_KEY, algorithms=[ALGORITHM])
+    return jwt.decode(token, audience=aud, key=SECRET_KEY, algorithms=["HS256"])
