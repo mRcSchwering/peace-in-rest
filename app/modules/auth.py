@@ -8,14 +8,6 @@ from app.modules.utils import utcnow
 
 # TODO: how to add refresh?
 
-# TODO: already warnings in passlib...
-# WARNING:passlib.handlers.bcrypt:(trapped) error reading bcrypt version
-# Traceback (most recent call last):
-#   File "/home/marc/anaconda3/envs/pir/lib/python3.11/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
-#     version = _bcrypt.__about__.__version__
-#               ^^^^^^^^^^^^^^^^^
-# AttributeError: module 'bcrypt' has no attribute '__about__'
-
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 

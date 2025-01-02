@@ -13,20 +13,23 @@ async def setup():
         await util.create_item(sess=sess, user_pubid=user.id, name="u1i2")
         await util.create_user(sess=sess, name="u2")
         await sess.commit()
-        yield {"u1_id": user.id}
+        u1_token = util.create_user_access_token(name="u1")
+        yield {"u1_id": user.id, "u1_token": u1_token}
         await util.teardown_db(sess=sess)
         await sess.commit()
 
 
 class TestUsers:
     u1_id: str
+    auth_headers: dict
 
     @pytest.fixture(scope="function", autouse=True)
     async def setup(self, setup: dict):
         self.u1_id = setup["u1_id"]
+        self.auth_headers = {"Authorization": f"Bearer {setup['u1_token']}"}
 
     async def test_get_users(self, api_client: AsyncClient):
-        resp = await api_client.get("/users")
+        resp = await api_client.get("/users", headers=self.auth_headers)
         assert resp.status_code == 200
         data = resp.json()
 
@@ -64,7 +67,7 @@ class TestUsers:
         assert len(data["items"]) == 0
 
     async def test_create_update_delete_user(self, api_client: AsyncClient):
-        payload: dict = {"name": "u3", "fullname": "user 3"}
+        payload: dict = {"name": "u3", "fullname": "user 3", "password": "MyPass1234!"}
         resp = await api_client.post("/users", json=payload)
         assert resp.status_code == 201
         user = resp.json()
