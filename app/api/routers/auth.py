@@ -17,4 +17,4 @@ async def login_for_access_token(
         sess=session, username=form_data.username, password=form_data.password
     )
     token = create_access_token(sub=form_data.username)
-    return TokenResponse(access_token=token, token_type="bearer", refresh_token="asd")
+    return TokenResponse(access_token=token, token_type="bearer")
