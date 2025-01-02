@@ -25,7 +25,7 @@ class ItemsResponse(BaseModel):
 
 class CreateItemPayload(BaseModel):
     name: str = Field(..., max_length=30)
-    user_pubid: str
+    user_pubid: str = Field(..., min_length=36, max_length=36)
 
 
 class UpdateItemPayload(BaseModel):

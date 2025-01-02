@@ -1,9 +1,22 @@
-from typing import Sequence
-from pydantic import BaseModel, Field
+from typing import Sequence, Annotated
+from string import ascii_letters
+from pydantic import BaseModel, Field, AfterValidator
 from app.database.models import user_models
 from .items import ItemResponse
 
-# TODO: check UUIDs in pydantic (have fixed character length)
+
+def _validate_password(value: str) -> str:
+    if len(value) < 8 or len(value) > 50:
+        raise ValueError("Password length must be between 8 and 50 characters")
+    if set(ascii_letters) & set(value) == set():
+        raise ValueError("Password must contain at least 1 character")
+    if set(str(d) for d in range(10)) & set(value) == set():
+        raise ValueError("Password must contain at least 1 number")
+    return value
+
+
+class A(BaseModel):
+    a: Annotated[str, AfterValidator(_validate_password)]
 
 
 class UserResponse(BaseModel):
@@ -38,7 +51,7 @@ class UsersResponse(BaseModel):
 
 class CreateUserPayload(BaseModel):
     name: str = Field(..., max_length=30)
-    password: str
+    password: str = Field(..., min_length=8, max_length=50)
     fullname: str | None = None
 
 

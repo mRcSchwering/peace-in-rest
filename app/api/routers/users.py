@@ -44,7 +44,6 @@ async def get_user_by_pubid(
 )
 async def create_user(session: AsyncSessionDep, payload: CreateUserPayload):
     log.info("Creating new user")
-    # TODO: check password strength (in Pydantic?), but not too long (bcrypt)
     hashed_password = hash_password(pw=payload.password)
 
     user = await user_service.create_user(
