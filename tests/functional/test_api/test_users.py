@@ -29,7 +29,7 @@ class TestUsers:
         self.auth_headers = {"Authorization": f"Bearer {setup['u1_token']}"}
 
     async def test_get_users(self, api_client: AsyncClient):
-        resp = await api_client.get("/users", headers=self.auth_headers)
+        resp = await api_client.get("/users")
         assert resp.status_code == 200
         data = resp.json()
 
@@ -54,7 +54,9 @@ class TestUsers:
         assert items[1]["name"] == "u1i2"
 
     async def test_delete_user_with_items(self, api_client: AsyncClient):
-        resp = await api_client.delete(f"/users/{self.u1_id}")
+        resp = await api_client.delete(
+            f"/users/{self.u1_id}", headers=self.auth_headers
+        )
         assert resp.status_code == 200
 
         resp = await api_client.get(f"/users/{self.u1_id}")
@@ -84,7 +86,9 @@ class TestUsers:
         assert user["fullname"] == "user 3"
 
         payload = {"fullname": None}
-        resp = await api_client.put(f"/users/{pubid}", json=payload)
+        resp = await api_client.put(
+            f"/users/{pubid}", json=payload, headers=self.auth_headers
+        )
         assert resp.status_code == 200
         user = resp.json()
 
@@ -98,7 +102,7 @@ class TestUsers:
         assert user["name"] == "u3"
         assert "fullname" not in user
 
-        resp = await api_client.delete(f"/users/{pubid}")
+        resp = await api_client.delete(f"/users/{pubid}", headers=self.auth_headers)
         assert resp.status_code == 200
 
         resp = await api_client.get(f"/users/{pubid}")

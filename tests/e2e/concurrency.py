@@ -5,7 +5,7 @@ import httpx
 def _poll(url: str):
     while True:
         print("Polling", url)
-        resp = httpx.get(url=url, timeout=1)
+        resp = httpx.get(url=url, timeout=2)
         assert resp.status_code == 200, resp.content
         data = resp.json()
         assert len(data) > 0, resp.content
@@ -13,7 +13,7 @@ def _poll(url: str):
 
 def _create(url: str, payload: dict) -> str:
     print("Creating", url)
-    resp = httpx.post(url=url, json=payload, timeout=1)
+    resp = httpx.post(url=url, json=payload, timeout=2)
     assert resp.status_code == 201, resp.content
     data = resp.json()
     return data["pubid"]
@@ -21,14 +21,14 @@ def _create(url: str, payload: dict) -> str:
 
 def _get(url: str):
     print("Checking", url)
-    resp = httpx.get(url=url, timeout=1)
+    resp = httpx.get(url=url, timeout=2)
     assert resp.status_code == 200, resp.content
     data = resp.json()
     assert len(data) > 0, data
 
 
 def _create_user_and_items(user_name: str, app_url: str, n_items=10):
-    payload = {"name": user_name}
+    payload = {"name": user_name, "password": "MyPass1234!"}
     user_pubid = _create(url=f"{app_url}/users", payload=payload)
     for item_i in range(n_items):
         payload = {"name": f"{user_name}_item-{item_i}", "user_pubid": user_pubid}

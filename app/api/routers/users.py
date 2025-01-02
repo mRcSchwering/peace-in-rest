@@ -17,9 +17,8 @@ router = APIRouter(prefix="/users")
 
 
 @router.get("", response_model=UsersResponse, response_model_exclude_none=True)
-async def get_users(session: AsyncSessionDep, claims: AccessTokenClaimsDep):
+async def get_users(session: AsyncSessionDep):
     log.info("Getting all users")
-    print(claims)
     users = await user_service.get_all_users(sess=session)
     return UsersResponse.from_users(users=users)
 
@@ -58,7 +57,12 @@ async def create_user(session: AsyncSessionDep, payload: CreateUserPayload):
 
 
 @router.put("/{pubid}", response_model=UserResponse, response_model_exclude_none=True)
-async def update_user(session: AsyncSessionDep, pubid: str, payload: UpdateUserPayload):
+async def update_user(
+    session: AsyncSessionDep,
+    _: AccessTokenClaimsDep,
+    pubid: str,
+    payload: UpdateUserPayload,
+):
     log.info("Updating user %s", pubid)
     user = await user_service.update_user(
         sess=session, pubid=pubid, fullname=payload.fullname
@@ -67,6 +71,6 @@ async def update_user(session: AsyncSessionDep, pubid: str, payload: UpdateUserP
 
 
 @router.delete("/{pubid}", response_model_exclude_none=True)
-async def delete_user(session: AsyncSessionDep, pubid: str):
+async def delete_user(session: AsyncSessionDep, _: AccessTokenClaimsDep, pubid: str):
     log.info("Deleting user %s", pubid)
     await user_service.delete_user(sess=session, pubid=pubid)

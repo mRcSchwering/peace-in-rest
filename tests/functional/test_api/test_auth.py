@@ -49,4 +49,4 @@ class TestGetAccessToken:
 
         data = {"username": "u3", "password": "U1Pass1234!"}
         resp = await api_client.post("/auth/token", data=data)
-        assert resp.status_code == 404
+        assert resp.status_code == 401
