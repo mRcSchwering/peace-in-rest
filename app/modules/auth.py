@@ -1,10 +1,8 @@
 import datetime as dt
 import jwt
 import bcrypt
+from app.config import JWT_SECRET_KEY
 from app.modules.utils import utcnow
-
-# openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 
 
 def hash_password(pw: str) -> str:
@@ -26,16 +24,16 @@ def create_access_token(
 
     exp = utcnow() + dt.timedelta(minutes=exp_minutes)
     claims = {"sub": sub, "aud": aud, "exp": exp}
-    return jwt.encode({**add_claims, **claims}, key=SECRET_KEY, algorithm="HS256")
+    return jwt.encode({**add_claims, **claims}, key=JWT_SECRET_KEY, algorithm="HS256")
 
 
 def create_refresh_token(sub: str, aud: str = "app", exp_minutes=60 * 24) -> str:
     """Create JWT with sub, aud, and long exp"""
     exp = utcnow() + dt.timedelta(minutes=exp_minutes)
     claims = {"sub": sub, "aud": aud, "exp": exp}
-    return jwt.encode(claims, key=SECRET_KEY, algorithm="HS256")
+    return jwt.encode(claims, key=JWT_SECRET_KEY, algorithm="HS256")
 
 
 def decode_access_token(token: str | bytes, aud: str = "app") -> dict:
     """Verify JWT, decode and return all contained claims"""
-    return jwt.decode(token, audience=aud, key=SECRET_KEY, algorithms=["HS256"])
+    return jwt.decode(token, audience=aud, key=JWT_SECRET_KEY, algorithms=["HS256"])
