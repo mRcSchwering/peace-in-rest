@@ -20,13 +20,20 @@ def verify_password(pw: str, pwhash: str) -> bool:
 def create_access_token(
     sub: str, aud: str = "app", add_claims: dict | None = None, exp_minutes=60
 ) -> str:
-    """Create JWT with sub, aud, exp and optional additional claims"""
+    """Create JWT with sub, aud, optional additional claims and short exp"""
     if add_claims is None:
         add_claims = {}
 
     exp = utcnow() + dt.timedelta(minutes=exp_minutes)
     claims = {"sub": sub, "aud": aud, "exp": exp}
     return jwt.encode({**add_claims, **claims}, key=SECRET_KEY, algorithm="HS256")
+
+
+def create_refresh_token(sub: str, aud: str = "app", exp_minutes=60 * 24) -> str:
+    """Create JWT with sub, aud, and long exp"""
+    exp = utcnow() + dt.timedelta(minutes=exp_minutes)
+    claims = {"sub": sub, "aud": aud, "exp": exp}
+    return jwt.encode(claims, key=SECRET_KEY, algorithm="HS256")
 
 
 def decode_access_token(token: str | bytes, aud: str = "app") -> dict:
