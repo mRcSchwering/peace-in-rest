@@ -10,9 +10,10 @@ router = APIRouter(prefix="/auth")
 
 
 @router.post("/token", response_model=TokenResponse, response_model_exclude_none=True)
-async def login_to_get_access_token(
+async def login(
     session: AsyncSessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
+    """Login to get access and refresh tokens"""
     user = await auth_service.check_login_credentials(
         sess=session, username=form_data.username, password=form_data.password
     )
@@ -23,7 +24,8 @@ async def login_to_get_access_token(
 
 
 @router.post("/refresh", response_model=TokenResponse, response_model_exclude_none=True)
-async def refresh_access_token(session: AsyncSessionDep, form_data=RefreshTokenPayload):
+async def refresh(session: AsyncSessionDep, form_data=RefreshTokenPayload):
+    """Get new refresh and access tokens using a valid refresh token"""
     user = await auth_service.check_refresh_token(
         sess=session, token=form_data.refresh_token
     )

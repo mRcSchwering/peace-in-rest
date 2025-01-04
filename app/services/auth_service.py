@@ -37,6 +37,7 @@ async def get_token_claims(token: str) -> dict:
 
 async def check_refresh_token(sess: AsyncSession, token: str) -> user_models.User:
     """Returns user, aises HTTPException is anything is wrong"""
+    log.info("Checking refresh token")
     claims = await get_token_claims(token=token)
 
     if "sub" not in claims:
@@ -54,6 +55,7 @@ async def check_login_credentials(
     sess: AsyncSession, username: str, password: str
 ) -> user_models.User:
     """Returns user, aises HTTPException is anything is wrong"""
+    log.info("Checking login credentials for %s", username)
     try:
         user = await user_service.get_user_by_name(sess=sess, name=username)
     except NoResultFound as err:
