@@ -2,7 +2,6 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from app.dependencies import AsyncSessionDep
-from app.modules.auth import create_access_token, create_refresh_token
 from app.schemas.auth import TokenResponse, RefreshTokenPayload
 from app.services import auth_service
 
@@ -18,8 +17,7 @@ async def login(
         sess=session, username=form_data.username, password=form_data.password
     )
 
-    access_token = create_access_token(sub=user.name)
-    refresh_token = create_refresh_token(sub=user.name)
+    access_token, refresh_token = auth_service.generate_user_tokens(user_pubid=user.id)
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
@@ -30,6 +28,5 @@ async def refresh(session: AsyncSessionDep, form_data=RefreshTokenPayload):
         sess=session, token=form_data.refresh_token
     )
 
-    access_token = create_access_token(sub=user.name)
-    refresh_token = create_refresh_token(sub=user.name)
+    access_token, refresh_token = auth_service.generate_user_tokens(user_pubid=user.id)
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)

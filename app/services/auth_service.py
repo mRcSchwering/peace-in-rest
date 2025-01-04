@@ -4,7 +4,12 @@ from sqlalchemy.exc import NoResultFound
 from jwt.exceptions import InvalidTokenError
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from app.modules.auth import verify_password, decode_access_token
+from app.modules.auth import (
+    verify_password,
+    decode_access_token,
+    create_access_token,
+    create_refresh_token,
+)
 from app.database.models import user_models
 from app.services import user_service
 
@@ -26,26 +31,34 @@ _wrong_credentials_exception = HTTPException(
 )
 
 
-async def get_token_claims(token: str) -> dict:
+def get_token_claims(token: str) -> dict:
     """Parse and verify token, raise HTTPException if token invalid."""
     try:
-        return decode_access_token(token=token)
+        claims = decode_access_token(token=token)
     except InvalidTokenError as err:
         log.warning("Invalid token was provided: %r", err)
         raise _token_validation_exception from err
+    if "sub" not in claims:
+        log.warning("Invalid token was provided: 'sub' claim not in token.")
+        raise _token_validation_exception
+    return claims
+
+
+def generate_user_tokens(user_pubid: str) -> tuple[str, str]:
+    """Returns access_token, refresh_token for user"""
+    log.info("Generating access and refresh token for %s", user_pubid)
+    access_token = create_access_token(sub=user_pubid)
+    refresh_token = create_refresh_token(sub=user_pubid)
+    return access_token, refresh_token
 
 
 async def check_refresh_token(sess: AsyncSession, token: str) -> user_models.User:
     """Returns user, aises HTTPException is anything is wrong"""
     log.info("Checking refresh token")
-    claims = await get_token_claims(token=token)
-
-    if "sub" not in claims:
-        log.warning("Invalid token was provided: 'sub' claim not in token.")
-        raise _token_validation_exception
+    claims = get_token_claims(token=token)
 
     try:
-        return await user_service.get_user_by_name(sess=sess, name=claims["sub"])
+        return await user_service.get_user_by_pubid(sess=sess, pubid=claims["sub"])
     except NoResultFound as err:
         log.warning("Invalid token was provided: 'sub'=%r not found", claims["sub"])
         raise _token_validation_exception from err
