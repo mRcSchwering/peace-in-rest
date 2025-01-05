@@ -31,6 +31,7 @@ _wrong_credentials_exception = HTTPException(
 )
 
 
+# TODO: claims as Model?
 def get_token_claims(token: str) -> dict:
     """Parse and verify token, raise HTTPException if token invalid."""
     try:
