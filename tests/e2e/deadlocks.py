@@ -38,11 +38,13 @@ def _update(url: str, token: str):
     assert len(data) > 0, resp.content
 
 
-def run_deadlocks_test(app_url: str, n_clients: int = 10, **_):
-    payload = {"name": "lutz", "password": "MyPass123!"}
+def run_deadlocks_test(
+    app_url: str, n_clients: int = 10, label: str = "deadlocks-test", **_
+):
+    payload = {"name": f"{label}_lutz", "password": "MyPass123!"}
     user_pubid = _create(url=f"{app_url}/users", payload=payload)
 
-    payload = {"username": "lutz", "password": "MyPass123!"}
+    payload = {"username": f"{label}_lutz", "password": "MyPass123!"}
     user_token = _login(url=f"{app_url}/auth/token", payload=payload)
 
     print("Start polling")

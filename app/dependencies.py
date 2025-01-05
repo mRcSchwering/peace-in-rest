@@ -16,9 +16,9 @@ async def _get_db_session():
 
 async def _get_token_claims(
     token: Annotated[str, Depends(auth_service.oauth2_scheme)]
-) -> dict:
+) -> auth_service.TokenClaims:
     return auth_service.get_token_claims(token=token)
 
 
 AsyncSessionDep = Annotated[AsyncSession, Depends(_get_db_session)]
-AccessTokenClaimsDep = Annotated[dict, Depends(_get_token_claims)]
+AccessTokenClaimsDep = Annotated[auth_service.TokenClaims, Depends(_get_token_claims)]

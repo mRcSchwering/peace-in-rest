@@ -61,7 +61,7 @@ async def update_user(
     payload: UpdateUserPayload,
 ):
     """Update an existing user"""
-    if claims["sub"] != pubid:
+    if claims.user_pubid != pubid:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
     user = await user_service.update_user(
@@ -75,7 +75,7 @@ async def delete_user(
     session: AsyncSessionDep, claims: AccessTokenClaimsDep, pubid: str
 ):
     """Delete an existing user"""
-    if claims["sub"] != pubid:
+    if claims.user_pubid != pubid:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
     await user_service.delete_user(sess=session, pubid=pubid)

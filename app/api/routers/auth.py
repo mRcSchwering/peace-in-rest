@@ -1,8 +1,8 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from app.dependencies import AsyncSessionDep
-from app.schemas.auth import TokenResponse, RefreshTokenPayload
+from app.schemas.auth import TokenResponse
 from app.services import auth_service
 
 router = APIRouter(prefix="/auth")
@@ -22,11 +22,13 @@ async def login(
 
 
 @router.post("/refresh", response_model=TokenResponse, response_model_exclude_none=True)
-async def refresh(session: AsyncSessionDep, form_data=RefreshTokenPayload):
+async def refresh(
+    session: AsyncSessionDep,
+    refresh_token: Annotated[str, Form()],
+    grant_type: Annotated[str, Form()] = "refresh_token",  # pylint:disable=W0613
+):
     """Get new refresh and access tokens using a valid refresh token"""
-    user = await auth_service.check_refresh_token(
-        sess=session, token=form_data.refresh_token
-    )
+    user = await auth_service.check_refresh_token(sess=session, token=refresh_token)
 
     access_token, refresh_token = auth_service.generate_user_tokens(user_pubid=user.id)
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)

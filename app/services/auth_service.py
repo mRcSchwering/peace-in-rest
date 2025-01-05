@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import NoResultFound
 from jwt.exceptions import InvalidTokenError
@@ -31,18 +32,24 @@ _wrong_credentials_exception = HTTPException(
 )
 
 
-# TODO: claims as Model?
-def get_token_claims(token: str) -> dict:
+@dataclass
+class TokenClaims:
+    user_pubid: str
+
+
+def get_token_claims(token: str) -> TokenClaims:
     """Parse and verify token, raise HTTPException if token invalid."""
     try:
         claims = decode_access_token(token=token)
     except InvalidTokenError as err:
         log.warning("Invalid token was provided: %r", err)
         raise _token_validation_exception from err
-    if "sub" not in claims:
-        log.warning("Invalid token was provided: 'sub' claim not in token.")
-        raise _token_validation_exception
-    return claims
+
+    try:
+        return TokenClaims(user_pubid=claims["sub"])
+    except KeyError as err:
+        log.warning("Invalid token was provided: %s claim not in token.", err)
+        raise _token_validation_exception from err
 
 
 def generate_user_tokens(user_pubid: str) -> tuple[str, str]:
@@ -59,9 +66,9 @@ async def check_refresh_token(sess: AsyncSession, token: str) -> user_models.Use
     claims = get_token_claims(token=token)
 
     try:
-        return await user_service.get_user_by_pubid(sess=sess, pubid=claims["sub"])
+        return await user_service.get_user_by_pubid(sess=sess, pubid=claims.user_pubid)
     except NoResultFound as err:
-        log.warning("Invalid token was provided: 'sub'=%r not found", claims["sub"])
+        log.warning("Invalid token was provided: user %r not found", claims.user_pubid)
         raise _token_validation_exception from err
 
 

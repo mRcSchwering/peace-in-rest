@@ -36,7 +36,9 @@ def _create_user_and_items(user_name: str, app_url: str, n_items=10):
         _get(url=f"{app_url}/items/{item_pubid}")
 
 
-def run_concurrency_test(app_url: str, n_users: int = 10, **_):
+def run_concurrency_test(
+    app_url: str, n_users: int = 10, label: str = "concurrency-test", **_
+):
     print("Start polling")
     poll_users_kwargs = {"url": f"{app_url}/users"}
     poll_users = mp.Process(target=_poll, kwargs=poll_users_kwargs)
@@ -44,7 +46,7 @@ def run_concurrency_test(app_url: str, n_users: int = 10, **_):
 
     try:
         print("Start creating resources")
-        args = [(f"user-{d}", app_url) for d in range(n_users)]
+        args = [(f"{label}_user-{d}", app_url) for d in range(n_users)]
         with mp.Pool(4) as pool:
             pool.starmap(_create_user_and_items, args)
         print("Stop creating resources")

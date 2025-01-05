@@ -16,7 +16,7 @@ async def setup():
         await sess.commit()
 
 
-class TestGetAccessToken:
+class TestAccessTokens:
     u1_id: str
     u2_id: str
 
@@ -25,13 +25,23 @@ class TestGetAccessToken:
         self.u1_id = setup["u1_id"]
         self.u2_id = setup["u2_id"]
 
-    async def test_get_access_token(self, api_client: AsyncClient):
-        data = {"username": "u1", "password": "U1Pass1234!"}
-        resp = await api_client.post("/auth/token", data=data)
+    async def test_get_and_refresh_access_token(self, api_client: AsyncClient):
+        payload = {"username": "u1", "password": "U1Pass1234!"}
+        resp = await api_client.post("/auth/token", data=payload)
         assert resp.status_code == 200
         data = resp.json()
 
         assert len(data["access_token"]) > 0
+        assert len(data["refresh_token"]) > 0
+        assert data["token_type"] == "bearer"
+
+        payload = {"refresh_token": data["refresh_token"]}
+        resp = await api_client.post("/auth/refresh", data=payload)
+        assert resp.status_code == 200
+        data = resp.json()
+
+        assert len(data["access_token"]) > 0
+        assert len(data["refresh_token"]) > 0
         assert data["token_type"] == "bearer"
 
     async def test_deny_access_token(self, api_client: AsyncClient):
@@ -49,4 +59,9 @@ class TestGetAccessToken:
 
         data = {"username": "u3", "password": "U1Pass1234!"}
         resp = await api_client.post("/auth/token", data=data)
+        assert resp.status_code == 401
+
+    async def test_deny_refresh_token(self, api_client: AsyncClient):
+        data = {"refresh_token": "asd"}
+        resp = await api_client.post("/auth/refresh", data=data)
         assert resp.status_code == 401
