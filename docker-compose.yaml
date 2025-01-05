@@ -21,6 +21,7 @@ services:
       - "80:80"
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://admin:admin@postgres:5432/main}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-my-secret-jwt-key}
 
   tests:
     build:
@@ -31,6 +32,7 @@ services:
     depends_on: [postgres]
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://admin:admin@postgres:5432/main}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-my-secret-jwt-key}
 
   migrations:
     build:
