@@ -1,7 +1,7 @@
 import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
-from sqlalchemy.exc import NoResultFound, MultipleResultsFound
+from sqlalchemy.exc import NoResultFound, MultipleResultsFound, DBAPIError
 
 log = logging.getLogger(__name__)
 
@@ -22,4 +22,12 @@ def add_exception_handlers(app: FastAPI):
         return PlainTextResponse(
             status_code=500,
             content=b"A single result was required but more than one were found",
+        )
+
+    @app.exception_handler(DBAPIError)
+    async def _invalid_db_query(request: Request, exc: DBAPIError):
+        log.error("%s %s: %s", request.method, request.url, exc)
+        return PlainTextResponse(
+            status_code=500,
+            content=b"An internal query was invalid",
         )

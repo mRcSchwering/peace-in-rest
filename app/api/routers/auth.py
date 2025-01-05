@@ -13,7 +13,7 @@ async def login(
     session: AsyncSessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
     """Login to get access and refresh tokens"""
-    user = await auth_service.check_login_credentials(
+    user = await auth_service.check_login_credentials_and_get_user(
         sess=session, username=form_data.username, password=form_data.password
     )
 
@@ -28,7 +28,9 @@ async def refresh(
     grant_type: Annotated[str, Form()] = "refresh_token",  # pylint:disable=W0613
 ):
     """Get new refresh and access tokens using a valid refresh token"""
-    user = await auth_service.check_refresh_token(sess=session, token=refresh_token)
+    user = await auth_service.parse_token_and_get_user(
+        sess=session, token=refresh_token
+    )
 
     access_token, refresh_token = auth_service.generate_user_tokens(user_pubid=user.id)
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
