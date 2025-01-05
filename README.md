@@ -141,7 +141,7 @@ FastAPI offers a CLI that starts uvicorn to serve the app.
 This CLI has a `--workers` argument to start multiple processes at once.
 Setting this argument (more than 1 process) breaks the app.
 There will be `connection refused` errors if many requests are comming in.
-I added concurrency tests to [tests/e2e/](./tests/e2e/).
+I added concurrency tests to [tests/integration/](./tests/integration/).
 Probably the web server doesn't serve multiple processes correctly.
 
 I assume serving the app with gunicorn would work fine.
