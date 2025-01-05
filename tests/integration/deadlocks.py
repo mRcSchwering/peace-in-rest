@@ -39,7 +39,10 @@ def _update(url: str, token: str):
 
 
 def run_deadlocks_test(
-    app_url: str, n_clients: int = 10, label: str = "deadlocks-test", **_
+    app_url: str,
+    n_updates: int = 20,
+    label: str = "deadlocks-test",
+    **_,
 ):
     payload = {"name": f"{label}_lutz", "password": "MyPass123!"}
     user_pubid = _create(url=f"{app_url}/users", payload=payload)
@@ -54,7 +57,7 @@ def run_deadlocks_test(
 
     try:
         print("Start updating resources")
-        args = [(f"{app_url}/users/{user_pubid}", user_token) for _ in range(n_clients)]
+        args = [(f"{app_url}/users/{user_pubid}", user_token) for _ in range(n_updates)]
         with mp.Pool(4) as pool:
             pool.starmap(_update, args)
         print("Stop updating resources")

@@ -38,13 +38,13 @@ jobs:
 
     - name: reset database and app
       run: |
-        docker compose down && \
+        docker compose down --volumes && \
         docker compose up -d postgres app && \
         sleep 5 && \
         docker compose run --rm migrations alembic upgrade head
 
     - name: run concurrency test
-      run: docker compose run --rm tests python -m tests.e2e test concurrency
+      run: docker compose run --rm tests python -m tests.integration test concurrency
 
     - name: run deadlocks test
-      run: docker compose run --rm tests python -m tests.e2e test deadlocks
+      run: docker compose run --rm tests python -m tests.integration test deadlocks

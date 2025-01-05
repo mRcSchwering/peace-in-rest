@@ -2,6 +2,9 @@ from argparse import ArgumentParser
 from .concurrency import run_concurrency_test
 from .deadlocks import run_deadlocks_test
 
+# TODO: test that checks environment variables are used for critical stuff
+#       e.g. JWT does not use default secret
+
 
 def _run_test_cmd(kwargs: dict):
     cmd = kwargs.pop("test_cmd")
